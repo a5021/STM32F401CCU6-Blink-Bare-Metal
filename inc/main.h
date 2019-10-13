@@ -324,7 +324,7 @@ __STATIC_INLINE void init_sys(void) {
                  /*** Configure SysTick timer     ***/
 
   SysTick->LOAD = (uint32_t)(100000UL - 1UL);                             /* set reload register */
-  SysTick->VAL  = 999UL;                                                  /* load counter value  */
+  SysTick->VAL  = 1000UL - 1;                                             /* load counter value  */
   SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;   /* start SysTick timer */
 
 }

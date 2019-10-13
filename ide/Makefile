@@ -51,7 +51,7 @@ C_INCLUDES = -I../drv/CMSIS/Device/ST/STM32F4xx/Include -I../drv/CMSIS/Include -
 ifeq ($(DEBUG), 1)
 OPT = -g -gdwarf-4 -Og
 else
-OPT = -O3
+OPT = -Ofast -flto
 endif
 
 # compile gcc flags
