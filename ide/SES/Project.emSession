@@ -11,11 +11,10 @@
  <Memory3/>
  <Memory4/>
  <Project>
-  <ProjectSessionItem path="Executable_401"/>
-  <ProjectSessionItem path="Executable_401;Executable_401"/>
-  <ProjectSessionItem path="Executable_401;Executable_401;asm"/>
-  <ProjectSessionItem path="Executable_401;Executable_401;inc"/>
-  <ProjectSessionItem path="Executable_401;Executable_401;src"/>
+  <ProjectSessionItem path="Executable STM32F401"/>
+  <ProjectSessionItem path="Executable STM32F401;STM32F401CCU6 Blink Bare Metal"/>
+  <ProjectSessionItem path="Executable STM32F401;STM32F401CCU6 Blink Bare Metal;inc"/>
+  <ProjectSessionItem path="Executable STM32F401;STM32F401CCU6 Blink Bare Metal;src"/>
  </Project>
  <Register1/>
  <Register2/>
@@ -40,11 +39,8 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../src/main.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="8" useTextEdit="1" useBinaryEdit="0" left="0" path="../../inc/main.h" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="55" useTextEdit="1" useBinaryEdit="0" left="0" path="STM32F401x_Vectors.s" selected="0" top="55" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="52" useTextEdit="1" useBinaryEdit="0" left="0" path="STM32F4xx_Startup.s" selected="0" top="39" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="32" y="55" useTextEdit="1" useBinaryEdit="0" left="0" path="../../drv/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c" selected="1" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="21" useTextEdit="1" useBinaryEdit="0" left="0" path="../../src/main.c" selected="1" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../inc/main.h" selected="0" top="0" codecName="Default"/>
  </Files>
- <ARMCrossStudioWindow activeProject="Executable_401" fileDialogDefaultFilter="" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/RSR/SRC/STM32F401_PRJ/ide/SES" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <ARMCrossStudioWindow activeProject="STM32F401CCU6 Blink Bare Metal" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Release" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/RSR/SRC/STM32F401_PRJ/ide/SES" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

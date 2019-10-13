@@ -32,11 +32,11 @@
                 </option>
                 <option>
                     <name>Input description</name>
-                    <state>No specifier n, no float nor long long, no scan set, no assignment suppressing, with multibyte support.</state>
+                    <state>Full formatting, with multibyte support.</state>
                 </option>
                 <option>
                     <name>Output description</name>
-                    <state>No specifier a, A, no specifier n, no float nor long long, with multibyte support.</state>
+                    <state>Full formatting, with multibyte support.</state>
                 </option>
                 <option>
                     <name>GOutputBinary</name>
@@ -224,12 +224,12 @@
                 </option>
                 <option>
                     <name>CCDefines</name>
-                    <state>STM32F401xC
-
-
-
-
-
+                    <state>STM32F401xC
+
+
+
+
+
 </state>
                 </option>
                 <option>
@@ -291,7 +291,7 @@
                 <option>
                     <name>CCAllowList</name>
                     <version>1</version>
-                    <state>11111110</state>
+                    <state>10010100</state>
                 </option>
                 <option>
                     <name>CCDebugInfo</name>
@@ -373,7 +373,7 @@
                 </option>
                 <option>
                     <name>CCOptLevel</name>
-                    <state>3</state>
+                    <state>2</state>
                 </option>
                 <option>
                     <name>CCOptStrategy</name>
@@ -382,7 +382,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>3</state>
+                    <state>2</state>
                 </option>
                 <option>
                     <name>CompilerMisraRules98</name>
@@ -1061,18 +1061,6 @@
         </settings>
     </configuration>
     <group>
-        <name>src</name>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\main.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Source\Templates\iar\startup_stm32f401xc.s</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c</name>
-        </file>
-    </group>
-    <group>
         <name>drv</name>
         <file>
             <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h</name>
@@ -1085,6 +1073,18 @@
         <name>inc</name>
         <file>
             <name>$PROJ_DIR$\..\..\inc\main.h</name>
+        </file>
+    </group>
+    <group>
+        <name>src</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\main.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Source\Templates\iar\startup_stm32f401xc.s</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c</name>
         </file>
     </group>
 </project>

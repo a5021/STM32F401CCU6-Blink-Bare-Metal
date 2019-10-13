@@ -1,6 +1,6 @@
 <!DOCTYPE CrossStudio_Project_File>
-<solution Name="Executable_401" target="8" version="2">
-  <project Name="Executable_401">
+<solution Name="Executable STM32F401" target="8" version="2">
+  <project Name="STM32F401CCU6 Blink Bare Metal">
     <configuration
       Name="Common"
       Placement="Flash"
@@ -47,17 +47,29 @@
     </folder>
     <configuration
       Name="Debug"
-      arm_assembler_variant="gcc"
+      arm_assembler_variant="SEGGER"
       arm_compiler_variant="gcc"
       arm_linker_variant="GNU"
       c_system_include_directories="$(StudioDir)/include;../../inc;../../drv/CMSIS/Include;../../drv/CMSIS/Device/ST/STM32F4xx/Include"
       gcc_c_language_standard="gnu11"
-      gcc_cplusplus_language_standard="gnu++1z" />
+      gcc_cplusplus_language_standard="gnu++1z"
+      gcc_enable_all_warnings="Yes" />
     <folder Name="asm">
       <file file_name="STM32F401x_Vectors.s" />
       <file file_name="STM32F4xx_Startup.s" />
       <file file_name="thumb_crt0.s" />
     </folder>
+    <configuration
+      Name="Release"
+      arm_compiler_variant="gcc"
+      arm_linker_variant="GNU"
+      c_system_include_directories="$(StudioDir)/include;../../inc;../../drv/CMSIS/Include;../../drv/CMSIS/Device/ST/STM32F4xx/Include"
+      gcc_c_language_standard="gnu11"
+      gcc_cplusplus_language_standard="gnu++1z"
+      gcc_enable_all_warnings="Yes"
+      gcc_optimization_level="Level 3"
+      link_time_optimization="Yes"
+      linker_output_format="hex" />
   </project>
   <configuration
     Name="Debug"
