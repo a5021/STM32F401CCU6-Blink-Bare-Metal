@@ -1,13 +1,14 @@
 #include "main.h"
 
 int main(void) {
-  uint8_t it = 0;
+  
+  static int it;
 
   init_sys();   /* Set MCU speed, enable preipherials, etc.       */
   init_gpio();  /* Configure ports and pins (PA11 & PC13)         */
   init_usart(); /* Configure USART6 for 115200 baud               */
 
-  /********             Main program loop                **********/
+  /* ***********           Main program loop         ***********  */
 
   for (;;) {
     for (int i = 6; i; i--) { /* Make 3 fast LED flashes          */
@@ -20,13 +21,13 @@ int main(void) {
     uprintf("Iteration #%u\n", it++);  /* print debug message     */
   }
 
-/**************        Supress debug message         **************/
+  /*  ***********        Supress debug message       ***********  */
 
-#if __CC_ARM
-  #pragma diag_suppress 111
-#elif __ICCARM__
-  #pragma diag_suppress = Pe111
-#endif
+  #if __CC_ARM
+    #pragma diag_suppress 111
+  #elif __ICCARM__
+    #pragma diag_suppress = Pe111
+  #endif
 
   return 0;
 }

@@ -61,7 +61,8 @@
     </folder>
     <configuration
       Name="Release"
-      arm_compiler_variant="gcc"
+      arm_assembler_variant="SEGGER"
+      arm_compiler_variant="clang"
       arm_linker_variant="GNU"
       c_system_include_directories="$(StudioDir)/include;../../inc;../../drv/CMSIS/Include;../../drv/CMSIS/Device/ST/STM32F4xx/Include"
       gcc_c_language_standard="gnu11"
