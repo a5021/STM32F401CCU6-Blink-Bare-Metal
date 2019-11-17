@@ -8,43 +8,48 @@ extern "C" {
 #include <stdio.h>
 #include "stm32f4xx.h"
 
-#define ALL_ANALOG          UINT32_MAX
-#define PIN_CONF(PIN, MODE) ((uint32_t) MODE << (PIN * 2))
-#define PIN_AF(PIN, AF)     ((uint64_t) AF << (4 * (PIN)))
+#define ALL_ANALOG            UINT32_MAX
+#define PIN_CONF(PIN, MODE)   ((uint32_t) MODE << (PIN * 2))
+#define PIN_AF(PIN, AF)       ((uint64_t) AF << (4 * (PIN)))
 
-#define PIN(PIN_NO)         (PIN_NO)
-#define AF(PIN_NO)          (PIN_NO)
+#define PIN(PIN_NO)           (PIN_NO)
+#define AF(PIN_NO)            (PIN_NO)
 
-#define PIN_MODE_INPUT      ((uint32_t) 0)
-#define PIN_MODE_OUTPUT     ((uint32_t) 1)
-#define PIN_MODE_ALT_FUNC   ((uint32_t) 2)
-#define PIN_MODE_ANALOG     ((uint32_t) 3)
+#define PIN_MODE_INPUT        ((uint32_t) 0)
+#define PIN_MODE_OUTPUT       ((uint32_t) 1)
+#define PIN_MODE_ALT_FUNC     ((uint32_t) 2)
+#define PIN_MODE_ANALOG       ((uint32_t) 3)
 
-#define PINV_INPUT          ((uint32_t) 3)
-#define PINV_OUTPUT         ((uint32_t) 2)
-#define PINV_ALT_FUNC       ((uint32_t) 1)
-#define PINV_ANALOG         ((uint32_t) 0)
+#define PINV_INPUT            ((uint32_t) 3)
+#define PINV_OUTPUT           ((uint32_t) 2)
+#define PINV_ALT_FUNC         ((uint32_t) 1)
+#define PINV_ANALOG           ((uint32_t) 0)
 
-#define PIN_SPEED_LOW       ((uint32_t) 0)
-#define PIN_SPEED_MEDIUM    ((uint32_t) 1)
-#define PIN_SPEED_HIGH      ((uint32_t) 2)
-#define PIN_SPEED_HIGHER    ((uint32_t) 3)
+#define PIN_SPEED_LOW         ((uint32_t) 0)
+#define PIN_SPEED_MEDIUM      ((uint32_t) 1)
+#define PIN_SPEED_HIGH        ((uint32_t) 2)
+#define PIN_SPEED_HIGHER      ((uint32_t) 3)
 
-#define PIN_SPEED(PORT, CFG) GPIO ## PORT->OSPEEDR = (CFG)
+#define PIN_SPEED(PORT, CFG)  GPIO ## PORT->OSPEEDR = (CFG)
 
-#define PIN_PULL_NO         ((uint32_t) 0)
-#define PIN_PULL_UP         ((uint32_t) 1)
-#define PIN_PULL_DOWN       ((uint32_t) 2)
+#define PIN_PULL_NO           ((uint32_t) 0)
+#define PIN_PULL_UP           ((uint32_t) 1)
+#define PIN_PULL_DOWN         ((uint32_t) 2)
 
-#define LOW                 GPIO_BSRR_BR_
-#define HIGH                GPIO_BSRR_BS_
+#define LOW                   GPIO_BSRR_BR_
+#define HIGH                  GPIO_BSRR_BS_
+#define LO                    0
+#define HI                    1
 
-#define CONCATENATE(A, B)   A ## B
-#define TOGGLE_PIN(PORT, PIN, STATE)  GPIO ## PORT->BSRR = CONCATENATE(STATE, PIN)
+#define PIN_STATE(PIN, STATE) (1 << ((PIN) + (16 * !(STATE))))
 
-#define DELAY_MS(MS)        for(int i = 0; i < MS; i += SysTick->CTRL >> SysTick_CTRL_COUNTFLAG_Pos) { /* */ }
+#define CAT(A, B)             A ## B
+#define SWITCH_PIN(PORT, PIN, STATE) GPIO ## PORT->BSRR = CAT(STATE, PIN)
+#define SW_PIN(PORT, STATE)   GPIO ## PORT->BSRR = (STATE)
 
-#define MHZ                 *1000000UL
+#define DELAY_MS(MS)          for(int i = 0; i < MS; i += SysTick->CTRL >> SysTick_CTRL_COUNTFLAG_Pos) { /* */ }
+
+#define MHZ                   *1000000UL
 
 #define UART_BAUDRATE(FCLK, P_SPEED)    (((FCLK) + ((P_SPEED)/2U)) / (P_SPEED))
 
@@ -131,22 +136,9 @@ __STATIC_INLINE void init_sys(void) {
     0 * RCC_APB2ENR_TIM11EN            /*  0x00040000                                            */
   );
 
-  RCC->CR = RCC_CR_HSEON;
-  while(! (RCC->CR & RCC_CR_HSERDY)) { ; }
-
-  PWR->CR |= PWR_CR_DBP;               /* Enable Backup Domain Access                            */
-  RCC->BDCR |= RCC_BDCR_LSEON;
-  while(!(RCC->BDCR & RCC_BDCR_LSERDY)) { ; }
-
-  RCC->BDCR |= RCC_BDCR_RTCSEL_0;      /* LSE oscillator clock used as RTC clock                 */
-  RCC->BDCR |= RCC_BDCR_RTCEN;         /* Enable RTC                                             */
-
-  PWR->CR &= ~PWR_CR_DBP;              /* Disable Backup Domain Access                           */
-  RCC->APB1ENR = 0;                    /* Disable PWR interface                                  */
-
   /*  HSE / M * N / P                                                                            */
 
-  /*  25Mhz / 15 * 120 / 2 = 100Mhz                                                               */
+  /*  25Mhz / 15 * 120 / 2 = 100Mhz                                                              */
 
   RCC->PLLCFGR = (
 
@@ -207,8 +199,23 @@ __STATIC_INLINE void init_sys(void) {
     0 * RCC_PLLCFGR_PLLQ_3             /*    0x08000000                                          */
   );
 
-  RCC->CR |= RCC_CR_PLLON;             /*  Switch PLL ON                                         */
-  while((RCC->CR & RCC_CR_PLLRDY) != RCC_CR_PLLRDY) { /* Wait till PLL is ready */ }
+  RCC->CR = (
+    RCC_CR_HSEON                     | /*  Switch HSE ON                                         */
+    RCC_CR_PLLON                       /*  Switch PLL ON                                         */
+  );
+
+  PWR->CR |= PWR_CR_DBP;               /* Enable Backup Domain Access                            */
+  RCC->BDCR |= RCC_BDCR_LSEON;
+  while(!(RCC->BDCR & RCC_BDCR_LSERDY)) { ; }
+
+  RCC->BDCR |= RCC_BDCR_RTCSEL_0;      /* LSE oscillator clock used as RTC clock                 */
+  RCC->BDCR |= RCC_BDCR_RTCEN;         /* Enable RTC                                             */
+
+  PWR->CR &= ~PWR_CR_DBP;              /* Disable Backup Domain Access                           */
+  RCC->APB1ENR = 0;                    /* Disable PWR interface                                  */
+
+  while(! (RCC->CR & RCC_CR_HSERDY)) { /* Wait till HSE is ready */ }
+  while(! (RCC->CR & RCC_CR_PLLRDY)) { /* Wait till PLL is ready */ }
 
   FLASH->ACR = (
     0 * FLASH_ACR_LATENCY_0WS        | /*                                                        */
@@ -320,27 +327,37 @@ __STATIC_INLINE void init_sys(void) {
     0 * RCC_CFGR_MCO2_0              | /*    0x40000000                                          */
     0 * RCC_CFGR_MCO2_1                /*    0x80000000                                          */
   );
+                                                                              /*
+                Wait till System clock is ready
+                ===============================                               */
 
-   /* Wait till System clock is ready */
   while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL) { ; }
+                                                                              /*
+                   Configure SysTick timer
+   By default the clock source of SysTick is AHB/8 = 12.5 MHz.
+   ===========================================================                */
 
-                 /*** Configure SysTick timer     ***/
-
-  SysTick->LOAD = (uint32_t)(100000UL - 1UL);                             /* set reload register */
-  SysTick->VAL  = 1000UL - 1;                                             /* load counter value  */
-  SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;   /* start SysTick timer */
+  SysTick->LOAD = 12500UL - 1;                /* set reload register */
+  SysTick->VAL  = 1000UL - 1;                 /* load counter value  */
+  SysTick->CTRL = SysTick_CTRL_ENABLE_Msk;    /* start SysTick timer */
 
 }
 
 __STATIC_INLINE void init_gpio(void) {
+                                                                              /*
+                Configure aternate functions of GPIOA
+                =====================================                         */
 
-  *(uint64_t *)&GPIOA->AFR = (  /*** Configure aternate functions of GPIOA    */
+  *(uint64_t *)&GPIOA->AFR = (
     PIN_AF(PIN(14),  AF(0))             | /* PA14:  AF0 SYS_SWDCLK            */
     PIN_AF(PIN(13),  AF(0))             | /* PA13:  AF0 SYS_SWDIO             */
     PIN_AF(PIN(11),  AF(8))               /* PA11:  AF8 USART6_TX             */
   );
+                                                                              /*
+                 Set mode for each ping of GPIOA
+                 ===============================                              */
 
-  GPIOA->MODER = ALL_ANALOG - ( /*** Set mode for each ping of GPIOA          */
+  GPIOA->MODER = ALL_ANALOG - (
 #ifndef SWD_DISABLED
     PIN_CONF(PIN(14), PINV_ALT_FUNC)    | /* PA14 AF0 -- SYS_SWDCLK           */
     PIN_CONF(PIN(13), PINV_ALT_FUNC)    | /* PA13 AF0 -- SYS_SWDIO            */
@@ -349,8 +366,11 @@ __STATIC_INLINE void init_gpio(void) {
     PIN_CONF(PIN(1),  PINV_INPUT)       | /* PA1  INPUT MODE                  */
     PIN_CONF(PIN(0),  PINV_OUTPUT)        /* PA0  OUTPUT PUSH PULL MODE       */
   );
+                                                                              /*
+                 Set speed for each pin of GPIOA
+                 ===============================                              */
 
-  GPIOA->OSPEEDR = (            /*** Set speed for each pin of GPIOA          */
+  GPIOA->OSPEEDR = (
 #ifndef SWD_DISABLED
     PIN_CONF(PIN(14), PIN_SPEED_LOW)    | /* PA14 AF0 -- SYS_SWDCLK           */
     PIN_CONF(PIN(13), PIN_SPEED_HIGHER) | /* PA13 AF0 -- SYS_SWDIO            */
@@ -358,8 +378,11 @@ __STATIC_INLINE void init_gpio(void) {
     PIN_CONF(PIN(11), PIN_SPEED_LOW)    | /* PA11 AF8 -- USART6_TX            */
     PIN_CONF(PIN(0),  PIN_SPEED_LOW)      /* PA0  OUTPUT PUSH PULL            */
   );
+                                                                              /*
+                Pull pins up or down if required
+                ================================                              */
 
-  GPIOA->PUPDR = (             /*** Set pull-up/pull-down configuration       */
+  GPIOA->PUPDR = (
 #ifndef SWD_DISABLED
     PIN_CONF(PIN(14), PIN_PULL_UP)      | /* PA14 AF0 -- SYS_SWDCLK           */
     PIN_CONF(PIN(13), PIN_PULL_DOWN)    | /* PA13 AF0 -- SYS_SWDIO            */
@@ -367,7 +390,8 @@ __STATIC_INLINE void init_gpio(void) {
     PIN_CONF(PIN(1),  PIN_PULL_UP)        /* PA1  INPUT PULL-UP               */
   );
 
-  TOGGLE_PIN(C, 13, HIGH);                /* SET GPIOC PIN 13 HIGH            */
+  //SW_PIN(C, 13, HIGH);                    /* SET GPIOC PIN 13 HIGH            */
+  SW_PIN(C, PIN_STATE(13, HI));
 
   GPIOC->MODER = ALL_ANALOG - (           /* Configure GPIOC                  */
     PIN_CONF(PIN(13), PINV_OUTPUT)        /* PA13 OUTPUT PUSH-PULL            */
