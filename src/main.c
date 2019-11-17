@@ -1,12 +1,12 @@
 #include "main.h"
 
 int main(void) {
-  
+
   static int it;
 
-  init_sys();   /* Set MCU speed, enable preipherials, etc.       */
-  init_gpio();  /* Configure ports and pins (PA11 & PC13)         */
-  init_usart(); /* Configure USART6 for 115200 baud               */
+  init_sys();         /* Set MCU speed, enable preipherials, etc. */
+  init_gpio();        /* Configure ports and pins (PA11 & PC13)   */
+  init_usart(115200); /* Configure USART6 for 115200 baud         */
 
   /* ***********           Main program loop         ***********  */
 

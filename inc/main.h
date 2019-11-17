@@ -27,7 +27,10 @@ extern "C" {
 
 #define PIN_SPEED_LOW       ((uint32_t) 0)
 #define PIN_SPEED_MEDIUM    ((uint32_t) 1)
-#define PIN_SPEED_HIGH      ((uint32_t) 3)
+#define PIN_SPEED_HIGH      ((uint32_t) 2)
+#define PIN_SPEED_HIGHER    ((uint32_t) 3)
+
+#define PIN_SPEED(PORT, CFG) GPIO ## PORT->OSPEEDR = (CFG)
 
 #define PIN_PULL_NO         ((uint32_t) 0)
 #define PIN_PULL_UP         ((uint32_t) 1)
@@ -331,29 +334,48 @@ __STATIC_INLINE void init_sys(void) {
 
 __STATIC_INLINE void init_gpio(void) {
 
-  *(uint64_t *)&GPIOA->AFR = (
-    PIN_AF(PIN(14),  AF(0))          | /* PA14:  AF0 SYS_SWDCLK                                  */
-    PIN_AF(PIN(13),  AF(0))          | /* PA13:  AF0 SYS_SWDIO                                   */
-    PIN_AF(PIN(11),  AF(8))            /* PA11:  AF8 USART6_TX                                   */
+  *(uint64_t *)&GPIOA->AFR = (  /*** Configure aternate functions of GPIOA    */
+    PIN_AF(PIN(14),  AF(0))             | /* PA14:  AF0 SYS_SWDCLK            */
+    PIN_AF(PIN(13),  AF(0))             | /* PA13:  AF0 SYS_SWDIO             */
+    PIN_AF(PIN(11),  AF(8))               /* PA11:  AF8 USART6_TX             */
   );
 
-  GPIOA->MODER = ALL_ANALOG - (        /*** Configure GPIOA                                      */
+  GPIOA->MODER = ALL_ANALOG - ( /*** Set mode for each ping of GPIOA          */
 #ifndef SWD_DISABLED
-    PIN_CONF(PIN(14), PINV_ALT_FUNC) | /* PA14 AF0 -- SYS_SWDCLK                                 */
-    PIN_CONF(PIN(13), PINV_ALT_FUNC) | /* PA13 AF0 -- SYS_SWDIO                                  */
+    PIN_CONF(PIN(14), PINV_ALT_FUNC)    | /* PA14 AF0 -- SYS_SWDCLK           */
+    PIN_CONF(PIN(13), PINV_ALT_FUNC)    | /* PA13 AF0 -- SYS_SWDIO            */
 #endif
-    PIN_CONF(PIN(11), PINV_ALT_FUNC)   /* PA11 AF8 -- USART6_TX                                  */
+    PIN_CONF(PIN(11), PINV_ALT_FUNC)    | /* PA11 AF8 -- USART6_TX            */
+    PIN_CONF(PIN(1),  PINV_INPUT)       | /* PA1  INPUT MODE                  */
+    PIN_CONF(PIN(0),  PINV_OUTPUT)        /* PA0  OUTPUT PUSH PULL MODE       */
   );
 
-  TOGGLE_PIN(C, 13, HIGH);             /* SET GPIOC PIN 13 HIGH                                  */
+  GPIOA->OSPEEDR = (            /*** Set speed for each pin of GPIOA          */
+#ifndef SWD_DISABLED
+    PIN_CONF(PIN(14), PIN_SPEED_LOW)    | /* PA14 AF0 -- SYS_SWDCLK           */
+    PIN_CONF(PIN(13), PIN_SPEED_HIGHER) | /* PA13 AF0 -- SYS_SWDIO            */
+#endif
+    PIN_CONF(PIN(11), PIN_SPEED_LOW)    | /* PA11 AF8 -- USART6_TX            */
+    PIN_CONF(PIN(0),  PIN_SPEED_LOW)      /* PA0  OUTPUT PUSH PULL            */
+  );
 
-  GPIOC->MODER = ALL_ANALOG - (        /* Configure GPIOC                                        */
-    PIN_CONF(PIN(13), PINV_OUTPUT)     /* PA13 OUTPUT PUSH-PULL                                  */
+  GPIOA->PUPDR = (             /*** Set pull-up/pull-down configuration       */
+#ifndef SWD_DISABLED
+    PIN_CONF(PIN(14), PIN_PULL_UP)      | /* PA14 AF0 -- SYS_SWDCLK           */
+    PIN_CONF(PIN(13), PIN_PULL_DOWN)    | /* PA13 AF0 -- SYS_SWDIO            */
+#endif
+    PIN_CONF(PIN(1),  PIN_PULL_UP)        /* PA1  INPUT PULL-UP               */
+  );
+
+  TOGGLE_PIN(C, 13, HIGH);                /* SET GPIOC PIN 13 HIGH            */
+
+  GPIOC->MODER = ALL_ANALOG - (           /* Configure GPIOC                  */
+    PIN_CONF(PIN(13), PINV_OUTPUT)        /* PA13 OUTPUT PUSH-PULL            */
   );
 }
 
-__STATIC_INLINE void init_usart(void) {
-  USART6->BRR = UART_BAUDRATE(100 MHZ, 115200);
+__STATIC_INLINE void init_usart(uint32_t baudrate) {
+  USART6->BRR = UART_BAUDRATE(100 MHZ, baudrate);
   USART6->CR1 = (
     0 * USART_CR1_SBK        | /* 0x00000001 Send Break                             */
     0 * USART_CR1_RWU        | /* 0x00000002 Receiver wakeup                        */
