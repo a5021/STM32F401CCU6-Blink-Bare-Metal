@@ -36,6 +36,9 @@ extern "C" {
 #define PIN_PULL_UP           ((uint32_t) 1)
 #define PIN_PULL_DOWN         ((uint32_t) 2)
 
+#define PIN_LOW(PIN)          GPIO_BSRR_BR_ ## PIN
+#define PIN_HIGH(PIN)         GPIO_BSRR_BS_ ## PIN
+
 #define LOW                   GPIO_BSRR_BR_
 #define HIGH                  GPIO_BSRR_BS_
 #define LO                    0
@@ -204,18 +207,18 @@ __STATIC_INLINE void init_sys(void) {
     RCC_CR_PLLON                       /*  Switch PLL ON                                         */
   );
 
-  PWR->CR |= PWR_CR_DBP;               /* Enable Backup Domain Access                            */
+  PWR->CR |= PWR_CR_DBP;               /*  Enable Backup Domain Access                           */
   RCC->BDCR |= RCC_BDCR_LSEON;
   while(!(RCC->BDCR & RCC_BDCR_LSERDY)) { ; }
 
-  RCC->BDCR |= RCC_BDCR_RTCSEL_0;      /* LSE oscillator clock used as RTC clock                 */
-  RCC->BDCR |= RCC_BDCR_RTCEN;         /* Enable RTC                                             */
+  RCC->BDCR |= RCC_BDCR_RTCSEL_0;      /*  LSE oscillator clock used as RTC clock                */
+  RCC->BDCR |= RCC_BDCR_RTCEN;         /*  Enable RTC                                            */
 
-  PWR->CR &= ~PWR_CR_DBP;              /* Disable Backup Domain Access                           */
-  RCC->APB1ENR = 0;                    /* Disable PWR interface                                  */
+  PWR->CR &= ~PWR_CR_DBP;              /*  Disable Backup Domain Access                          */
+  RCC->APB1ENR = 0;                    /*  Disable PWR interface                                 */
 
-  while(! (RCC->CR & RCC_CR_HSERDY)) { /* Wait till HSE is ready */ }
-  while(! (RCC->CR & RCC_CR_PLLRDY)) { /* Wait till PLL is ready */ }
+  while(!(RCC->CR & RCC_CR_HSERDY))  { /*  Wait till HSE is ready */ }
+  while(!(RCC->CR & RCC_CR_PLLRDY))  { /*  Wait till PLL is ready */ }
 
   FLASH->ACR = (
     0 * FLASH_ACR_LATENCY_0WS        | /*                                                        */
@@ -391,7 +394,7 @@ __STATIC_INLINE void init_gpio(void) {
   );
 
   //SW_PIN(C, 13, HIGH);                    /* SET GPIOC PIN 13 HIGH            */
-  SW_PIN(C, PIN_STATE(13, HI));
+  SW_PIN(C, PIN_HIGH(13));
 
   GPIOC->MODER = ALL_ANALOG - (           /* Configure GPIOC                  */
     PIN_CONF(PIN(13), PINV_OUTPUT)        /* PA13 OUTPUT PUSH-PULL            */
