@@ -2,16 +2,16 @@
 <project>
     <fileVersion>3</fileVersion>
     <configuration>
-        <name>STM32F401CC</name>
+        <name>STM32F401CCU6 Blink Bare Metal</name>
         <toolchain>
             <name>ARM</name>
         </toolchain>
         <debug>1</debug>
         <settings>
             <name>C-STAT</name>
-            <archiveVersion>261</archiveVersion>
+            <archiveVersion>262</archiveVersion>
             <data>
-                <version>261</version>
+                <version>262</version>
                 <cstatargs>
                     <useExtraArgs>0</useExtraArgs>
                     <extraArgs></extraArgs>
@@ -24,7 +24,7 @@
                     <messagesLimit>100</messagesLimit>
                 </cstatargs>
                 <cstat_settings>
-                    <cstat_version>1.5.5</cstat_version>
+                    <cstat_version>1.6.2</cstat_version>
                     <checks_tree>
                         <package name="STDCHECKS" enabled="true">
                             <group enabled="true" name="ARR">
@@ -395,6 +395,7 @@
                                 <check name="MISRAC2004-2.4" enabled="false" />
                             </group>
                             <group enabled="true" name="MISRAC2004-5">
+                                <check name="MISRAC2004-5.1" enabled="true" />
                                 <check name="MISRAC2004-5.2" enabled="true" />
                                 <check name="MISRAC2004-5.3" enabled="true" />
                                 <check name="MISRAC2004-5.4" enabled="true" />
@@ -422,10 +423,8 @@
                                 <check name="MISRAC2004-8.7" enabled="true" />
                                 <check name="MISRAC2004-8.8_a" enabled="true" />
                                 <check name="MISRAC2004-8.8_b" enabled="true" />
-                                <check name="MISRAC2004-8.12" enabled="true" />
-                            </group>
-                            <group enabled="true" name="MISRAC2004-8 10">
                                 <check name="MISRAC2004-8.10" enabled="true" />
+                                <check name="MISRAC2004-8.12" enabled="true" />
                             </group>
                             <group enabled="true" name="MISRAC2004-9">
                                 <check name="MISRAC2004-9.1_a" enabled="true" />
@@ -982,9 +981,11 @@
                             </group>
                             <group enabled="true" name="MISRAC++2008-6-5">
                                 <check name="MISRAC++2008-6-5-1_a" enabled="true" />
+                                <check name="MISRAC++2008-6-5-1_b" enabled="true" />
                                 <check name="MISRAC++2008-6-5-2" enabled="true" />
                                 <check name="MISRAC++2008-6-5-3" enabled="true" />
                                 <check name="MISRAC++2008-6-5-4" enabled="true" />
+                                <check name="MISRAC++2008-6-5-5" enabled="true" />
                                 <check name="MISRAC++2008-6-5-6" enabled="true" />
                             </group>
                             <group enabled="true" name="MISRAC++2008-6-6">
@@ -1144,7 +1145,7 @@
                 </option>
                 <option>
                     <name>GenRtcIntOverflow</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>GenRtcIncUnsigned</name>
@@ -1152,7 +1153,7 @@
                 </option>
                 <option>
                     <name>GenRtcIntConversion</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>GenRtcInclExplicit</name>
@@ -1160,7 +1161,7 @@
                 </option>
                 <option>
                     <name>GenRtcIntShiftOverflow</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>GenRtcInclUnsignedShiftOverflow</name>
@@ -1168,15 +1169,15 @@
                 </option>
                 <option>
                     <name>GenRtcUnhandledCase</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>GenRtcDivByZero</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>GenRtcEnable</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>GenRtcCheckPtrsNonInstrFunc</name>
@@ -1185,18 +1186,6 @@
             </data>
         </settings>
     </configuration>
-    <group>
-        <name>src</name>
-        <file>
-            <name>$PROJ_DIR$\..\..\src\main.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Source\Templates\iar\startup_stm32f401xc.s</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c</name>
-        </file>
-    </group>
     <group>
         <name>drv</name>
         <file>
@@ -1210,6 +1199,18 @@
         <name>inc</name>
         <file>
             <name>$PROJ_DIR$\..\..\inc\main.h</name>
+        </file>
+    </group>
+    <group>
+        <name>src</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\src\main.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Source\Templates\iar\startup_stm32f401xc.s</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\drv\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c</name>
         </file>
     </group>
 </project>
