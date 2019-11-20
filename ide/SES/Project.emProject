@@ -47,13 +47,15 @@
     </folder>
     <configuration
       Name="Debug"
-      arm_assembler_variant="SEGGER"
+      arm_assembler_variant="gcc"
       arm_compiler_variant="gcc"
       arm_linker_variant="GNU"
       c_system_include_directories="$(StudioDir)/include;../../inc;../../drv/CMSIS/Include;../../drv/CMSIS/Device/ST/STM32F4xx/Include"
+      debug_target_connection="Simulator"
       gcc_c_language_standard="gnu11"
       gcc_cplusplus_language_standard="gnu++1z"
-      gcc_enable_all_warnings="Yes" />
+      gcc_enable_all_warnings="Yes"
+      gcc_optimization_level="Debug" />
     <folder Name="asm">
       <file file_name="STM32F401x_Vectors.s" />
       <file file_name="STM32F4xx_Startup.s" />
@@ -65,6 +67,7 @@
       arm_compiler_variant="clang"
       arm_linker_variant="GNU"
       c_system_include_directories="$(StudioDir)/include;../../inc;../../drv/CMSIS/Include;../../drv/CMSIS/Device/ST/STM32F4xx/Include"
+      debug_target_connection="Simulator"
       gcc_c_language_standard="gnu11"
       gcc_cplusplus_language_standard="gnu++1z"
       gcc_enable_all_warnings="Yes"
@@ -74,12 +77,17 @@
   </project>
   <configuration
     Name="Debug"
+    arm_compiler_variant="gcc"
     c_preprocessor_definitions="DEBUG"
+    debug_target_connection="Simulator"
+    gcc_c_language_standard="gnu11"
+    gcc_cplusplus_language_standard="gnu++1z"
     gcc_debugging_level="Level 3"
-    gcc_optimization_level="None" />
+    gcc_optimization_level="Debug" />
   <configuration
     Name="Release"
     c_preprocessor_definitions="NDEBUG"
+    debug_target_connection="Simulator"
     gcc_debugging_level="None"
     gcc_omit_frame_pointer="Yes"
     gcc_optimization_level="Level 1" />

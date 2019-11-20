@@ -50,7 +50,7 @@ extern "C" {
 #define SWITCH_PIN(PORT, PIN, STATE) GPIO ## PORT->BSRR = CAT(STATE, PIN)
 #define SW_PIN(PORT, STATE)   GPIO ## PORT->BSRR = (STATE)
 
-#define DELAY_MS(MS)          for(int i = 0; i < MS; i += SysTick->CTRL >> SysTick_CTRL_COUNTFLAG_Pos) { /* */ }
+#define DELAY_MS(MS)          for(int x = 0; x < MS; x += SysTick->CTRL >> SysTick_CTRL_COUNTFLAG_Pos){}
 
 #define MHZ                   *1000000UL
 
@@ -209,7 +209,7 @@ __STATIC_INLINE void init_sys(void) {
 
   PWR->CR |= PWR_CR_DBP;               /*  Enable Backup Domain Access                           */
   RCC->BDCR |= RCC_BDCR_LSEON;
-  while(!(RCC->BDCR & RCC_BDCR_LSERDY)) { ; }
+  while(!(RCC->BDCR & RCC_BDCR_LSERDY)) { /*  */ }
 
   RCC->BDCR |= RCC_BDCR_RTCSEL_0;      /*  LSE oscillator clock used as RTC clock                */
   RCC->BDCR |= RCC_BDCR_RTCEN;         /*  Enable RTC                                            */
@@ -334,7 +334,7 @@ __STATIC_INLINE void init_sys(void) {
                 Wait till System clock is ready
                 ===============================                               */
 
-  while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL) { ; }
+  while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL) { /*  */ }
                                                                               /*
                    Configure SysTick timer
    By default the clock source of SysTick is AHB/8 = 12.5 MHz.
@@ -347,15 +347,24 @@ __STATIC_INLINE void init_sys(void) {
 }
 
 __STATIC_INLINE void init_gpio(void) {
+
+  #ifdef __clang__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wcast-align"
+  #endif
                                                                               /*
                 Configure aternate functions of GPIOA
                 =====================================                         */
-
-  *(uint64_t *)&GPIOA->AFR = (
+  
+  *(volatile uint64_t *)&GPIOA->AFR = (
     PIN_AF(PIN(14),  AF(0))             | /* PA14:  AF0 SYS_SWDCLK            */
     PIN_AF(PIN(13),  AF(0))             | /* PA13:  AF0 SYS_SWDIO             */
     PIN_AF(PIN(11),  AF(8))               /* PA11:  AF8 USART6_TX             */
   );
+  
+  #if defined(__clang__) 
+    #pragma clang diagnostic pop 
+  #endif
                                                                               /*
                  Set mode for each ping of GPIOA
                  ===============================                              */
@@ -421,6 +430,10 @@ __STATIC_INLINE void init_usart(uint32_t baudrate) {
     0 * USART_CR1_OVER8        /* 0x00008000 USART Oversampling by 8 enable         */
   );
 }
+
+#if defined(__clang__) && !defined(__CC_ARM)
+  #pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 
 #ifdef __cplusplus
 }
