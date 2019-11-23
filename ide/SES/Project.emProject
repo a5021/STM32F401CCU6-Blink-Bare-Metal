@@ -51,11 +51,13 @@
       arm_compiler_variant="gcc"
       arm_linker_variant="GNU"
       c_system_include_directories="$(StudioDir)/include;../../inc;../../drv/CMSIS/Include;../../drv/CMSIS/Device/ST/STM32F4xx/Include"
-      debug_target_connection="Simulator"
+      debug_target_connection="J-Link"
       gcc_c_language_standard="gnu11"
       gcc_cplusplus_language_standard="gnu++1z"
       gcc_enable_all_warnings="Yes"
-      gcc_optimization_level="Debug" />
+      gcc_optimization_level="Debug"
+      linker_printf_width_precision_supported="Yes"
+      target_reset_script="TargetInterface.resetAndStop()" />
     <folder Name="asm">
       <file file_name="STM32F401x_Vectors.s" />
       <file file_name="STM32F4xx_Startup.s" />
@@ -79,11 +81,11 @@
     Name="Debug"
     arm_compiler_variant="gcc"
     c_preprocessor_definitions="DEBUG"
-    debug_target_connection="Simulator"
+    debug_target_connection="J-Link"
     gcc_c_language_standard="gnu11"
     gcc_cplusplus_language_standard="gnu++1z"
     gcc_debugging_level="Level 3"
-    gcc_optimization_level="Debug" />
+    gcc_optimization_level="Level 1" />
   <configuration
     Name="Release"
     c_preprocessor_definitions="NDEBUG"
