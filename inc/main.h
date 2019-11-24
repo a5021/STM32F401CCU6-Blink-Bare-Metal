@@ -311,7 +311,7 @@ __STATIC_INLINE void init_sys(void) {
   // );
 
   if (!(RTC->ISR & RTC_ISR_INITS)) {
-    RTC->TR = 0x002534; 
+    RTC->TR = 0x025034; 
     RTC->DR = 0x191124;
   }
 
@@ -357,11 +357,11 @@ __STATIC_INLINE void init_sys(void) {
 
   RTC->ISR = ~RTC_ISR_INIT;
 
-  RTC->WPR = 0xFF;                     /* Lock RTC write protection                              */
+  RTC->WPR = 0xFF;                     /* Enable RTC write protection                            */
 
   // while(!(RCC->BDCR & RCC_BDCR_LSERDY)) { /*  */ }
 
-  PWR->CR = PWR_CR_VOS_1;              /*  Disable Backup Domain Access                          */
+  // PWR->CR = PWR_CR_VOS_1;              /*  Disable Backup Domain Access                          */
   // RCC->APB1ENR = 0;                    /*  Disable PWR interface                                 */
 
   FLASH->ACR = (
@@ -580,6 +580,8 @@ __STATIC_INLINE void init_usart(uint32_t baudrate) {
 
 #if defined(__clang__) && !defined(__CC_ARM)
   #pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#elif defined(__CC_ARM)
+    #pragma diag_suppress 1293
 #endif
 
 #ifdef __cplusplus

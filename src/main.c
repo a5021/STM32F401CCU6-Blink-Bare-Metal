@@ -14,25 +14,28 @@ int main(void) {
   init_usart(115200); /* Configure USART6 for 115200 baud         */
                                                                   /*
                       Main program loop
-       =================================================           
+====================================================================
                                                                   */
   for (;;) {
+                                                                  /*
+            Wait for wakeup flag and then clear it
+            ======================================                */
 
-    while(!(RTC->ISR & RTC_ISR_WUTF)) {/* JUST WAIT */}
-    PWR->CR = PWR_CR_VOS_1 | PWR_CR_DBP; /* Enable Backup Domain Access (leave VOS default)       */
-    RTC->ISR = ~RTC_ISR_WUTF;
-    PWR->CR = PWR_CR_VOS_1;              /* Disable Backup Domain Access (leave VOS default)      */
-    
-    for (int i = 6; i; i--) { /* Make 3 fast LED flashes          */
-      GPIOC->ODR ^= GPIO_ODR_OD13; /* invert LED pin state        */
-      DELAY_MS(30); /* Wait 30ms between LED state changings      */
-    }
+    while ((RTC->ISR = UINT32_MAX * !(RTC->ISR & RTC_ISR_WUTF)));
+                                                                  /*
+               Make 3 fast LED flashes
+               =======================                            */
+    for (int i = 6; i; i--) {
+      GPIOC->ODR ^= GPIO_ODR_OD13; /* Invert LED pin state        */
+      DELAY_MS(30);                /* Wait 30ms                   */
+    }                                                             /*
+               Print the date and time
+               =======================                            */
 
-    print_date();   /* print debug message                        */
-
+    print_date();
   }                                                               /*
                      Supress debug message
-       =================================================           
+       =================================================
                                                                   */
   #if defined(__clang__) && !defined(__CC_ARM)
     #pragma clang diagnostic push
@@ -44,7 +47,7 @@ int main(void) {
   #endif
 
   return 0;
-  
+
   #if defined(__clang__) && !defined(__CC_ARM)
     #pragma clang diagnostic pop
   #endif
