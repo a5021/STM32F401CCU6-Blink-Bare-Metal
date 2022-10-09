@@ -248,8 +248,8 @@ __STATIC_INLINE void init_sys(void) {
     The following steps are required to unlock the write protection on all the RTC registers
     except for RTC_ISR[13:8], RTC_TAFCR, and RTC_BKPxR.
 
-      1. Write �0xCA� into the RTC_WPR register.
-      2. Write �0x53� into the RTC_WPR register.                                                 */
+      1. Write 0xCA into the RTC_WPR register.
+      2. Write 0x53 into the RTC_WPR register.                                                 */
 
   RTC->WPR = 0xCA;
   RTC->WPR = 0x53;                                                                               /*
@@ -363,6 +363,33 @@ __STATIC_INLINE void init_sys(void) {
 
   // PWR->CR = PWR_CR_VOS_1;              /*  Disable Backup Domain Access                          */
   // RCC->APB1ENR = 0;                    /*  Disable PWR interface                                 */
+  
+  /*
+  
+      Relation between CPU clock frequency and Flash memory read time
+      To correctly read data from Flash memory, the number of wait states (LATENCY) must be
+      correctly programmed in the Flash access control register (FLASH_ACR) according to the
+      frequency of the CPU clock (HCLK) and the supply voltage of the device.
+      The prefetch buffer must be disabled when the supply voltage is below 2.1 V. The
+      correspondence between wait states and CPU clock frequency is given in Table 6.
+        - when VOS[1:0] = 0x01, the maximum value of fHCLK = 60 MHz.
+        - when VOS[1:0] = 0x10, the maximum value of fHCLK = 84 MHz.
+      
+    Table 6. Number of wait states according to CPU clock (HCLK) frequency
+    ===========================================================================================
+     Wait states (WS)  |                         HCLK (MHz)
+        (LATENCY)      |  Voltage range     Voltage range     Voltage range     Voltage range
+                       |  2.7 V - 3.6 V     2.4 V - 2.7 V     2.1 V - 2.4 V     1.71 V - 2.1 V
+    ===========================================================================================
+    0 WS (1 CPU cycle)    0 < HCLK ≤ 30     0 < HCLK ≤ 24     0 < HCLK ≤ 18     0 < HCLK ≤ 16
+    1 WS (2 CPU cycles)  30 < HCLK ≤ 60    24 < HCLK ≤ 48    18 < HCLK ≤ 36    16 < HCLK ≤ 32
+    2 WS (3 CPU cycles)  60 < HCLK ≤ 84    48 < HCLK ≤ 72    36 < HCLK ≤ 54    32 < HCLK ≤ 48
+    3 WS (4 CPU cycles)        -           72 < HCLK ≤ 84    54 < HCLK ≤ 72    48 < HCLK ≤ 64
+    4 WS (5 CPU cycles)        -                 -           72 < HCLK ≤ 84    64 < HCLK ≤ 80
+    5 WS (6 CPU cycles)        -                 -                 -           80 < HCLK ≤ 84
+      
+  */
+  
 
   FLASH->ACR = (
     0 * FLASH_ACR_LATENCY_0WS        | /*                                                        */
