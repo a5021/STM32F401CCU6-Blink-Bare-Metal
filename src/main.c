@@ -3,7 +3,7 @@
 __STATIC_INLINE void print_date(void) {
    uint32_t tr = RTC->TR, dr = RTC->DR;
 
-   u_putx(RTC_DAY(dr)); u_putc('.'); u_putx(RTC_MONTH(dr)); u_putc('.'); u_putc('2'); u_putc('0'); u_putx(RTC_YEAR(dr)); u_putc(' ');
+   u_putx(RTC_DAY(dr)); u_putc('.'); u_putx(RTC_MONTH(dr)); u_putc('.'); u_putc('2'); u_putc('0'); u_putx((char)RTC_YEAR(dr)); u_putc(' ');
    u_putx(RTC_HOUR(tr)); u_putc(':'); u_putx(RTC_MINUTE(tr)); u_putc(':'); u_putx(RTC_SECOND(tr)); u_putc(10);
  }
 
@@ -34,7 +34,7 @@ int main(void) {
 
     print_date();
   }                                                               /*
-                     Supress debug message
+                  Supress diagnostic message
        =================================================
                                                                   */
   #if defined(__clang__) && !defined(__CC_ARM)

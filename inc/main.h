@@ -9,32 +9,32 @@ extern "C" {
 #include "stm32f4xx.h"
 
 #define ALL_ANALOG            UINT32_MAX
-#define PIN_CONF(PIN, MODE)   ((uint32_t) MODE << (PIN * 2))
-#define PIN_AF(PIN, AF)       ((uint64_t) AF << (4 * (PIN)))
+#define PIN_CONF(PIN, MODE)   (MODE << (PIN * 2))
+#define PIN_AF(PIN, AF)       (AF << (4 * (PIN)))
 
 #define PIN(PIN_NO)           (PIN_NO)
-#define AF(PIN_NO)            (PIN_NO)
+#define AF(PIN_NO)            (PIN_NO ## ULL)
 
-#define PIN_MODE_INPUT        ((uint32_t) 0)
-#define PIN_MODE_OUTPUT       ((uint32_t) 1)
-#define PIN_MODE_ALT_FUNC     ((uint32_t) 2)
-#define PIN_MODE_ANALOG       ((uint32_t) 3)
+#define PIN_MODE_INPUT        0UL
+#define PIN_MODE_OUTPUT       1UL
+#define PIN_MODE_ALT_FUNC     2UL
+#define PIN_MODE_ANALOG       3UL
 
-#define PINV_INPUT            ((uint32_t) 3)
-#define PINV_OUTPUT           ((uint32_t) 2)
-#define PINV_ALT_FUNC         ((uint32_t) 1)
-#define PINV_ANALOG           ((uint32_t) 0)
+#define PINV_INPUT            3UL
+#define PINV_OUTPUT           2UL
+#define PINV_ALT_FUNC         1UL
+#define PINV_ANALOG           0UL
 
-#define PIN_SPEED_LOW         ((uint32_t) 0)
-#define PIN_SPEED_MEDIUM      ((uint32_t) 1)
-#define PIN_SPEED_HIGH        ((uint32_t) 2)
-#define PIN_SPEED_HIGHER      ((uint32_t) 3)
+#define PIN_SPEED_LOW         0UL
+#define PIN_SPEED_MEDIUM      1UL
+#define PIN_SPEED_HIGH        2UL
+#define PIN_SPEED_HIGHER      3UL
 
 #define PIN_SPEED(PORT, CFG)  GPIO ## PORT->OSPEEDR = (CFG)
 
-#define PIN_PULL_NO           ((uint32_t) 0)
-#define PIN_PULL_UP           ((uint32_t) 1)
-#define PIN_PULL_DOWN         ((uint32_t) 2)
+#define PIN_PULL_NO           0UL
+#define PIN_PULL_UP           1UL
+#define PIN_PULL_DOWN         2UL
 
 #define PIN_LOW(PIN)          GPIO_BSRR_BR_ ## PIN
 #define PIN_HIGH(PIN)         GPIO_BSRR_BS_ ## PIN
@@ -116,10 +116,6 @@ __STATIC_INLINE void init_sys(void) {
     0 * RCC_AHB1ENR_DMA2EN             /*  0x00400000                                            */
   );
 
-  RCC->AHB2ENR = (
-    0 * RCC_AHB2ENR_OTGFSEN           /*  0x00000080                                             */
-  );
-
   RCC->APB1ENR = (
     0 * RCC_APB1ENR_TIM2EN           | /*  0x00000001                                            */
     0 * RCC_APB1ENR_TIM3EN           | /*  0x00000002                                            */
@@ -149,9 +145,7 @@ __STATIC_INLINE void init_sys(void) {
     0 * RCC_APB2ENR_TIM11EN            /*  0x00040000                                            */
   );
 
-  /*  HSE / M * N / P                                                                            */
-
-  /*  25Mhz / 15 * 120 / 2 = 100Mhz                                                              */
+  /*  HSE / M * N / P  =  25Mhz / 15 * 120 / 2 = 100Mhz                                          */
 
   RCC->PLLCFGR = (
                                                                                                  /* 
@@ -233,14 +227,6 @@ __STATIC_INLINE void init_sys(void) {
     RCC_BDCR_RTCEN                     /*  Enable RTC                                            */
   );
 
-  // while (!(RCC->BDCR & RCC_BDCR_LSERDY)) { /*  */ }
-
-  // RCC->BDCR = (
-  //   RCC_BDCR_LSEON                   | /*  LSE oscillator clock used as RTC clock                */
-  //   1 * RCC_BDCR_RTCSEL_0            | /*  LSE oscillator clock used as RTC clock                */
-  //   1 * RCC_BDCR_RTCEN                 /*  Enable RTC                                            */
-  // );
-
                                                                                                  /*
     After backup domain reset, all the RTC registers are write-protected. Writing to the RTC
     registers is enabled by writing a key into the Write Protection register, RTC_WPR.
@@ -248,8 +234,8 @@ __STATIC_INLINE void init_sys(void) {
     The following steps are required to unlock the write protection on all the RTC registers
     except for RTC_ISR[13:8], RTC_TAFCR, and RTC_BKPxR.
 
-      1. Write 0xCA into the RTC_WPR register.
-      2. Write 0x53 into the RTC_WPR register.                                                 */
+      1. Write 0xCA into the RTC_WPR register.
+      2. Write 0x53 into the RTC_WPR register.                                                   */
 
   RTC->WPR = 0xCA;
   RTC->WPR = 0x53;                                                                               /*
@@ -364,7 +350,7 @@ __STATIC_INLINE void init_sys(void) {
   // PWR->CR = PWR_CR_VOS_1;              /*  Disable Backup Domain Access                          */
   // RCC->APB1ENR = 0;                    /*  Disable PWR interface                                 */
   
-  /*
+                                                                                                 /*
   
       Relation between CPU clock frequency and Flash memory read time
       To correctly read data from Flash memory, the number of wait states (LATENCY) must be
@@ -388,9 +374,8 @@ __STATIC_INLINE void init_sys(void) {
     4 WS (5 CPU cycles)        -                 -           72 < HCLK ≤ 84    64 < HCLK ≤ 80
     5 WS (6 CPU cycles)        -                 -                 -           80 < HCLK ≤ 84
       
-  */
+                                                                                                 */
   
-
   FLASH->ACR = (
     0 * FLASH_ACR_LATENCY_0WS        | /*                                                        */
     0 * FLASH_ACR_LATENCY_1WS        | /*                                                        */

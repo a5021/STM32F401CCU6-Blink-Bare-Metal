@@ -35,15 +35,22 @@
     <folder Name="src">
       <configuration Name="Common" filter="c;cpp;cxx;cc;h;s;asm;inc" />
       <file file_name="../../src/main.c" />
-      <file file_name="../../drv/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c" />
+      <file file_name="../../src/system_stm32f4xx.c" />
     </folder>
     <folder Name="inc">
       <file file_name="../../inc/main.h" />
+      <file file_name="../../inc/CMSIS/cmsis_compiler.h" />
+      <file file_name="../../inc/CMSIS/cmsis_gcc.h" />
+      <file file_name="../../inc/CMSIS/cmsis_version.h" />
+      <file file_name="../../inc/CMSIS/core_cm4.h" />
+      <file file_name="../../inc/CMSIS/mpu_armv7.h" />
+      <configuration Name="Debug" build_exclude_from_build="Yes" />
     </folder>
     <folder Name="drv">
       <file file_name="../../drv/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h" />
       <file file_name="../../drv/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h" />
       <file file_name="../../drv/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h" />
+      <configuration Name="Debug" build_exclude_from_build="Yes" />
     </folder>
     <configuration
       Name="Debug"
@@ -51,9 +58,11 @@
       arm_compiler_variant="gcc"
       arm_linker_variant="GNU"
       c_system_include_directories="$(StudioDir)/include;../../inc;../../drv/CMSIS/Include;../../drv/CMSIS/Device/ST/STM32F4xx/Include"
+      c_user_include_directories=".;../../inc;../../inc/CMSIS"
       debug_target_connection="J-Link"
       gcc_c_language_standard="gnu11"
       gcc_cplusplus_language_standard="gnu++1z"
+      gcc_dwarf_version="dwarf-5"
       gcc_enable_all_warnings="Yes"
       gcc_optimization_level="Debug"
       linker_printf_width_precision_supported="Yes"
