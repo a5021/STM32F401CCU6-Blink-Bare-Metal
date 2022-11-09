@@ -9,9 +9,9 @@ ifeq (0, 1)
   endif
 endif
 
-SRC = ./src/main.c ../src/system_stm32f4xx.c
+SRC = ./src/main.c ./src/system_stm32f4xx.c
 ASM = ./src/startup_stm32f401xc.s
-LDS = ./STM32F401CCUX_FLASH.ld
+LDS = STM32F401CCUX_FLASH.ld
 MCU = -mcpu=cortex-m4 -mthumb
 DEF = -DSTM32F401xC
 INC = -I./inc -I./inc/CMSIS
@@ -33,6 +33,8 @@ BIN = $(CP) -O binary -S
 
 FLAG = $(MCU) $(DEF) $(INC) -Wall -Werror -Wextra -Wpedantic -fdata-sections -ffunction-sections
 
+JLINK_FLAGS = -openprj./stm32f401cc.jflash -open$(BUILD_DIR)/$(TARGET).hex -auto -hide -exit -jflashlog./jflash.log
+
 ifeq ($(OS), Windows_NT)
 
     FLAG += -D WIN32
@@ -49,6 +51,8 @@ ifeq ($(OS), Windows_NT)
 
     STLINK = ST-LINK_CLI.exe
     STLINK_FLAGS = -c UR -V -P $(BUILD_DIR)/$(TARGET).hex -HardRst -Run
+
+    JLINK = JFlash.exe
 
 else
 
@@ -73,6 +77,8 @@ else
     STLINK = st-flash
     STLINK_FLAGS = --reset --format ihex write $(BUILD_DIR)/$(TARGET).hex
 
+    JLINK = JFlashExe
+
 endif
 
 FLAG += -MMD -MP -MF $(@:%.o=%.d)
@@ -80,7 +86,7 @@ FLAG += -MMD -MP -MF $(@:%.o=%.d)
 LIB = -lc -lm -lnosys
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDS) $(LIB) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
-all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+all:: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
 OBJ = $(addprefix $(BUILD_DIR)/,$(notdir $(SRC:.c=.o)))
 vpath %.c $(sort $(dir $(SRC)))
@@ -107,19 +113,23 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 $(BUILD_DIR):
 	mkdir $@
 
-debug: OPT = -Og -g3 -gdwarf
-debug: FLAG += -DUSE_SWD=1
-debug: all
+debug:: OPT = -Og -g3 -gdwarf
+debug:: FLAG += -DDEBUG
+debug:: all
 
 # Display compiler version information.
-gccversion :
+gccversion::
 	@$(CC) --version
 
-# Program the device.
-program: $(BUILD_DIR)/$(TARGET).hex
+# Program the device using st-link.
+program:: $(BUILD_DIR)/$(TARGET).hex
 	$(STLINK) $(STLINK_FLAGS)
 
-clean:
+# Program the device using jlink.
+jprogram:: $(BUILD_DIR)/$(TARGET).hex
+	$(JLINK) $(JLINK_FLAGS)
+
+clean::
 	rm -fR $(BUILD_DIR)
 
 -include $(wildcard $(BUILD_DIR)/*.d)

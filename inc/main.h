@@ -9,8 +9,8 @@ extern "C" {
 #include "stm32f4xx.h"
 
 #define ALL_ANALOG            UINT32_MAX
-#define PIN_CONF(PIN, MODE)   (MODE << (PIN * 2))
-#define PIN_AF(PIN, AF)       (AF << (4 * (PIN)))
+#define PIN_CONF(PIN, MODE)   ((MODE) << ((PIN) * 2))
+#define PIN_AF(PIN, AF)       ((AF) << (4 * (PIN)))
 
 #define PIN(PIN_NO)           (PIN_NO)
 #define AF(PIN_NO)            (PIN_NO ## ULL)
@@ -60,22 +60,23 @@ extern "C" {
 #define RTC_MINUTE(TR)        ((TR >> 8) & 0x7F)
 #define RTC_SECOND(TR)        (TR & 0x7F)
 
-#define DELAY_MS(MS)          for(int x = 0; x < MS; x += SysTick->CTRL >> SysTick_CTRL_COUNTFLAG_Pos){}
+#define GET_TICK()            (SysTick->CTRL >> SysTick_CTRL_COUNTFLAG_Pos)
+#define DELAY_MS(MS)          do{(void)SysTick->CTRL; for(unsigned _ = MS; _; _ -= GET_TICK()){}}while(0)
 
 #define MHZ                   *1000000UL
 
 #define UART_BAUDRATE(FCLK, P_SPEED)    (((FCLK) + ((P_SPEED)/2U)) / (P_SPEED))
 
-#define READ_UART(_UART_NO, BUF, LEN)                                            \
-  for (int i = 0; i < (LEN); i++) {                                              \
-     while((USART##_UART_NO->SR & USART_SR_RXNE) != USART_SR_RXNE) { /****/ }    \
-     (BUF)[i] = USART##_UART_NO->DR;                                             \
+#define READ_UART(_UART_NO, BUF, LEN)                                           \
+  for (int i = 0; i < (LEN); i++) {                                             \
+     while((USART##_UART_NO->SR & USART_SR_RXNE) != USART_SR_RXNE) { /****/ }   \
+     (BUF)[i] = USART##_UART_NO->DR;                                            \
   }                                                                              
                                                                                  
-#define WRITE_UART(_UART_NO, SRC, LEN)                                           \
-  for (int i = 0; i < LEN; i++) {                                                \
-    while((USART##_UART_NO->SR & USART_SR_TXE) != USART_SR_TXE) { /****/ }       \
-    USART##_UART_NO->DR = SRC[i];                                                \
+#define WRITE_UART(_UART_NO, SRC, LEN)                                          \
+  for (int i = 0; i < LEN; i++) {                                               \
+    while((USART##_UART_NO->SR & USART_SR_TXE) != USART_SR_TXE) { /****/ }      \
+    USART##_UART_NO->DR = SRC[i];                                               \
   }
 
 __STATIC_INLINE void u_putc(const char c) {
@@ -222,9 +223,9 @@ __STATIC_INLINE void init_sys(void) {
 
   PWR->CR = PWR_CR_VOS_1 | PWR_CR_DBP; /*  Enable Backup Domain Access (leave VOS default)       */
   RCC->BDCR = (
-    RCC_BDCR_LSEON                   | /*  LSE oscillator clock used as RTC clock                */
+    RCC_BDCR_LSEON                   | /*  Switch HSE ON                                         */
     RCC_BDCR_RTCSEL_0                | /*  LSE oscillator clock used as RTC clock                */
-    RCC_BDCR_RTCEN                     /*  Enable RTC                                            */
+    RCC_BDCR_RTCEN                     /*  RTC clock enable                                      */
   );
 
                                                                                                  /*
@@ -268,37 +269,36 @@ __STATIC_INLINE void init_sys(void) {
 
   RTC->PRER = UINT8_MAX;               /*  program first the synchronous prescaler factor        */
   RTC->PRER = (                        /*  then program the asynchronous prescaler factor        */
-    RTC_PRER_PREDIV_A                | /*  0x007F0000                                            */
-    UINT8_MAX                          /*  0x000000FF                                            */
+    RTC_PRER_PREDIV_A                | /*    async: 0x007F0000                                   */
+    UINT8_MAX                          /*    sync:  0x000000FF                                   */
   );
                                                                                                
-  //                                                                                                
-  // RTC->CALIBR = (                                                                                
-  //   0 * RTC_CALIBR_DCS               | /*  0x00000080                                            */
-  //   0 * RTC_CALIBR_DC                  /*  0x0000001F                                            */
-  // );                                                                                             
-  //                                                                                                
-  // RTC->CALR = (                                                                                  
-  //                                                                                                
-  //   0 * RTC_CALR_CALP                | /*  0x00008000                                            */
-  //   0 * RTC_CALR_CALW8               | /*    0x00004000                                          */
-  //   0 * RTC_CALR_CALW16              | /*    0x00002000                                          */
-  //                                                                                                
-  //   0 * RTC_CALR_CALM                | /*  0x000001FF                                            */
-  //   0 * RTC_CALR_CALM_0              | /*    0x00000001                                          */
-  //   0 * RTC_CALR_CALM_1              | /*    0x00000002                                          */
-  //   0 * RTC_CALR_CALM_2              | /*    0x00000004                                          */
-  //   0 * RTC_CALR_CALM_3              | /*    0x00000008                                          */
-  //   0 * RTC_CALR_CALM_4              | /*    0x00000010                                          */
-  //   0 * RTC_CALR_CALM_5              | /*    0x00000020                                          */
-  //   0 * RTC_CALR_CALM_6              | /*    0x00000040                                          */
-  //   0 * RTC_CALR_CALM_7              | /*    0x00000080                                          */
-  //   0 * RTC_CALR_CALM_8                /*    0x00000100                                          */
-  // );
+  #if 0
+    RTC->CALIBR = (                     /* 0x40002818: RTC calibration register, offset: 0x18    */
+      0 * RTC_CALIBR_DCS             |  /* (1 << 7)       0x00000080                             */
+      0 * RTC_CALIBR_DC                 /* (0x1F << 0)    0x0000001F                             */
+    );                              
+                                    
+    RTC->CALR = (                       /* 0x4000283C: RTC calibration register, offset: 0x3C    */
+      0 * RTC_CALR_CALP              |  /* (1 << 15)      0x00008000                             */
+      0 * RTC_CALR_CALW8             |  /* (1 << 14)      0x00004000                             */
+      0 * RTC_CALR_CALW16            |  /* (1 << 13)      0x00002000                             */
+      0 * RTC_CALR_CALM              |  /* (0x1FF << 0)   0x000001FF                             */
+      0 * RTC_CALR_CALM_0            |  /* (0x001 << 0)     0x00000001                           */
+      0 * RTC_CALR_CALM_1            |  /* (0x002 << 0)     0x00000002                           */
+      0 * RTC_CALR_CALM_2            |  /* (0x004 << 0)     0x00000004                           */
+      0 * RTC_CALR_CALM_3            |  /* (0x008 << 0)     0x00000008                           */
+      0 * RTC_CALR_CALM_4            |  /* (0x010 << 0)     0x00000010                           */
+      0 * RTC_CALR_CALM_5            |  /* (0x020 << 0)     0x00000020                           */
+      0 * RTC_CALR_CALM_6            |  /* (0x040 << 0)     0x00000040                           */
+      0 * RTC_CALR_CALM_7            |  /* (0x080 << 0)     0x00000080                           */
+      0 * RTC_CALR_CALM_8               /* (0x100 << 0)     0x00000100                           */
+    );
+  #endif
 
   if (!(RTC->ISR & RTC_ISR_INITS)) {
-    RTC->TR = 0x025034; 
-    RTC->DR = 0x191124;
+    RTC->TR = 0x222222; 
+    RTC->DR = 0x220222;
   }
 
   RTC->CR = 0;                                                                                   /*
@@ -506,25 +506,20 @@ __STATIC_INLINE void init_sys(void) {
 
 }
 
-__STATIC_INLINE void init_gpio(void) {
+__STATIC_FORCEINLINE void write_afr(volatile void * afr, uint64_t a) {
+  *(__IO uint64_t *)afr = a;
+}
 
-  #ifdef __clang__
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wcast-align"
-  #endif
+__STATIC_INLINE void init_gpio(void) {
                                                                               /*
                 Configure aternate functions of GPIOA
                 =====================================                         */
   
-  *(volatile uint64_t *)&GPIOA->AFR = (
+  write_afr(GPIOA->AFR, 
     PIN_AF(PIN(14),  AF(0))             | /* PA14:  AF0 SYS_SWDCLK            */
     PIN_AF(PIN(13),  AF(0))             | /* PA13:  AF0 SYS_SWDIO             */
     PIN_AF(PIN(11),  AF(8))               /* PA11:  AF8 USART6_TX             */
   );
-  
-  #if defined(__clang__) 
-    #pragma clang diagnostic pop 
-  #endif
                                                                               /*
                  Set mode for each ping of GPIOA
                  ===============================                              */
@@ -571,30 +566,30 @@ __STATIC_INLINE void init_gpio(void) {
 
 __STATIC_INLINE void init_usart(uint32_t baudrate) {
   USART6->BRR = UART_BAUDRATE(100 MHZ, baudrate);
-  USART6->CR1 = (
-    0 * USART_CR1_SBK        | /* 0x00000001 Send Break                             */
-    0 * USART_CR1_RWU        | /* 0x00000002 Receiver wakeup                        */
-    0 * USART_CR1_RE         | /* 0x00000004 Receiver Enable                        */
-    1 * USART_CR1_TE         | /* 0x00000008 Transmitter Enable                     */
-    0 * USART_CR1_IDLEIE     | /* 0x00000010 IDLE Interrupt Enable                  */
-    0 * USART_CR1_RXNEIE     | /* 0x00000020 RXNE Interrupt Enable                  */
-    0 * USART_CR1_TCIE       | /* 0x00000040 Transmission Complete Interrupt Enable */
-    0 * USART_CR1_TXEIE      | /* 0x00000080 TXE Interrupt Enable                   */
-    0 * USART_CR1_PEIE       | /* 0x00000100 PE Interrupt Enable                    */
-    0 * USART_CR1_PS         | /* 0x00000200 Parity Selection                       */
-    0 * USART_CR1_PCE        | /* 0x00000400 Parity Control Enable                  */
-    0 * USART_CR1_WAKE       | /* 0x00000800 Wakeup method                          */
-    0 * USART_CR1_M          | /* 0x00001000 Word length                            */
-    1 * USART_CR1_UE         | /* 0x00002000 USART Enable                           */
-    0 * USART_CR1_OVER8        /* 0x00008000 USART Oversampling by 8 enable         */
+  USART6->CR1 = (           /* 0x4001140C: USART Control register 1, Address offset: 0x0C     */
+    0 * USART_CR1_SBK    |  /* (1 << 0)    Send Break                             0x00000001  */
+    0 * USART_CR1_RWU    |  /* (1 << 1)    Receiver wakeup                        0x00000002  */
+    0 * USART_CR1_RE     |  /* (1 << 2)    Receiver Enable                        0x00000004  */
+    1 * USART_CR1_TE     |  /* (1 << 3)    Transmitter Enable                     0x00000008  */
+    0 * USART_CR1_IDLEIE |  /* (1 << 4)    IDLE Interrupt Enable                  0x00000010  */
+    0 * USART_CR1_RXNEIE |  /* (1 << 5)    RXNE Interrupt Enable                  0x00000020  */
+    0 * USART_CR1_TCIE   |  /* (1 << 6)    Transmission Complete Interrupt Enable 0x00000040  */
+    0 * USART_CR1_TXEIE  |  /* (1 << 7)    TXE Interrupt Enable                   0x00000080  */
+    0 * USART_CR1_PEIE   |  /* (1 << 8)    PE Interrupt Enable                    0x00000100  */
+    0 * USART_CR1_PS     |  /* (1 << 9)    Parity Selection                       0x00000200  */
+    0 * USART_CR1_PCE    |  /* (1 << 10)   Parity Control Enable                  0x00000400  */
+    0 * USART_CR1_WAKE   |  /* (1 << 11)   Wakeup method                          0x00000800  */
+    0 * USART_CR1_M      |  /* (1 << 12)   Word length                            0x00001000  */
+    1 * USART_CR1_UE     |  /* (1 << 13)   USART Enable                           0x00002000  */
+    0 * USART_CR1_OVER8     /* (1 << 15)   USART Oversampling by 8 enable         0x00008000  */
   );
 }
 
-#if defined(__clang__) && !defined(__CC_ARM)
-  #pragma clang diagnostic ignored "-Wextra-semi-stmt"
-#elif defined(__CC_ARM)
-    #pragma diag_suppress 1293
-#endif
+// #if defined(__clang__) && !defined(__CC_ARM)
+//   #pragma clang diagnostic ignored "-Wextra-semi-stmt"
+// #elif defined(__CC_ARM)
+//     #pragma diag_suppress 1293
+// #endif
 
 #ifdef __cplusplus
 }
