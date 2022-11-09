@@ -33,23 +33,7 @@ int main(void) {
                =======================                            */
 
     print_date();
-  }                                                               /*
-                  Supress diagnostic message
-       =================================================
-                                                                  */
-  #if defined(__clang__) && !defined(__CC_ARM)
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wunreachable-code-return"
-  #elif defined(__CC_ARM)
-    #pragma diag_suppress 111
-  #elif defined(__ICCARM__)
-    #pragma diag_suppress = Pe111
-  #endif
 
-  return 0;
-
-  #if defined(__clang__) && !defined(__CC_ARM)
-    #pragma clang diagnostic pop
-  #endif
+  }
 }
 
