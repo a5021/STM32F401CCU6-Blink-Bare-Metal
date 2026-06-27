@@ -1,12 +1,23 @@
-#ifndef __MAIN_H
+﻿#ifndef __MAIN_H
 #define __MAIN_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/*=============================================================================
+ * This project uses a functional-register style: register fields are written
+ * as self-documenting expressions (e.g. 1 * RCC_AHB1ENR_GPIOAEN) rather than
+ * opaque hex values.  "0 * ..." means the bit is disabled (ORed with zero),
+ * "1 * ..." means the bit is enabled.
+ *============================================================================*/
+
 #include <stdio.h>
 #include "stm32f4xx.h"
+
+/*---------------------------------------------------------------------------
+ * GPIO helpers
+ *---------------------------------------------------------------------------*/
 
 #define ALL_ANALOG            UINT32_MAX
 #define PIN_CONF(PIN, MODE)   ((MODE) << ((PIN) * 2))
@@ -50,6 +61,10 @@ extern "C" {
 #define SWITCH_PIN(PORT, PIN, STATE) GPIO ## PORT->BSRR = CAT(STATE, PIN)
 #define SW_PIN(PORT, STATE)   GPIO ## PORT->BSRR = (STATE)
 
+/*---------------------------------------------------------------------------
+ * BCD / RTC helpers
+ *---------------------------------------------------------------------------*/
+
 #define BCD2DEC(B)            (((B) & 0x0F) + ((B) >> 4) * 10)
 #define DEC2BCD(D)            (((D) % 10) + (((D) / 10) << 4))
 
@@ -60,10 +75,20 @@ extern "C" {
 #define RTC_MINUTE(TR)        ((TR >> 8) & 0x7F)
 #define RTC_SECOND(TR)        (TR & 0x7F)
 
+/*---------------------------------------------------------------------------
+ * Timing: SysTick-based delay
+ *   SysTick runs at AHB/8 = 12.5 MHz; COUNTFLAG is set every 1 ms (LOAD=12499).
+ *   DELAY_MS(x) busy-waits for approximately x milliseconds.
+ *---------------------------------------------------------------------------*/
+
 #define GET_TICK()            (SysTick->CTRL >> SysTick_CTRL_COUNTFLAG_Pos)
 #define DELAY_MS(MS)          do{(void)SysTick->CTRL; for(unsigned _ = MS; _; _ -= GET_TICK()){}}while(0)
 
 #define MHZ                   *1000000UL
+
+/*---------------------------------------------------------------------------
+ * UART helpers
+ *---------------------------------------------------------------------------*/
 
 #define UART_BAUDRATE(FCLK, P_SPEED)    (((FCLK) + ((P_SPEED)/2U)) / (P_SPEED))
 
@@ -88,16 +113,12 @@ __STATIC_INLINE void u_puts(const char *s) {
   while (*s != 0) u_putc(*s++);
 }
 
-  /* Convert a nibble to HEX and send it via UART      */
-__STATIC_INLINE void u_put_x(const uint8_t c) {
-  /* Convert a nibble to HEX char and send it via UART */
-  u_putc(((c < 10) ? c + '0' : c + '7'));
-}
+#define u_put_x(c)  do { u_putc(((c) < 10) ? (c) + '0' : (c) + '7'); } while(0)
+#define u_putx(c)   do { u_put_x((c) >> 4); u_put_x((c) & 0x0F); } while(0)
 
-  /* Convert a byte to HEX and send it via UART        */
-__STATIC_INLINE void u_putx(const uint8_t c) {
-  u_put_x(c >> 4);
-  u_put_x(c & 0x0F);
+__STATIC_INLINE void u_put_bcd(const uint8_t bcd) {
+  u_putc('0' + (bcd >> 4));
+  u_putc('0' + (bcd & 0x0F));
 }
 
   /* MACRO to emulate printf() via UART */
@@ -227,7 +248,6 @@ __STATIC_INLINE void init_sys(void) {
     RCC_BDCR_RTCSEL_0                | /*  LSE oscillator clock used as RTC clock                */
     RCC_BDCR_RTCEN                     /*  RTC clock enable                                      */
   );
-
                                                                                                  /*
     After backup domain reset, all the RTC registers are write-protected. Writing to the RTC
     registers is enabled by writing a key into the Write Protection register, RTC_WPR.
@@ -339,19 +359,20 @@ __STATIC_INLINE void init_sys(void) {
     0 * RTC_CR_WUCKSEL_0             | /*    0x00000001                                          */
     0 * RTC_CR_WUCKSEL_1             | /*    0x00000002                                          */
     0 * RTC_CR_WUCKSEL_2               /*    0x00000004                                          */
+                                                                                                 /*
+        WUCKSEL=000 selects RTCCLK/16 = 2048 Hz as wakeup counter clock.
+        With WUTR=2047:  period = (2047+1) / 2048 = 1 second.                                    */
   );
 
   RTC->ISR = ~RTC_ISR_INIT;
-
   RTC->WPR = 0xFF;                     /* Enable RTC write protection                            */
-
-  // while(!(RCC->BDCR & RCC_BDCR_LSERDY)) { /*  */ }
-
-  // PWR->CR = PWR_CR_VOS_1;              /*  Disable Backup Domain Access                          */
-  // RCC->APB1ENR = 0;                    /*  Disable PWR interface                                 */
-  
                                                                                                  /*
-  
+        PWR_CR_DBP is intentionally left set — without it the APB bridge discards
+        writes to the RTC domain, including RTC_ISR.WUTF cleared in the main loop.               */
+
+  RCC->APB1ENR = 0;                    /*  Disable PWR interface clock                           */
+
+                                                                                                 /*
       Relation between CPU clock frequency and Flash memory read time
       To correctly read data from Flash memory, the number of wait states (LATENCY) must be
       correctly programmed in the Flash access control register (FLASH_ACR) according to the
@@ -367,15 +388,14 @@ __STATIC_INLINE void init_sys(void) {
         (LATENCY)      |  Voltage range     Voltage range     Voltage range     Voltage range
                        |  2.7 V - 3.6 V     2.4 V - 2.7 V     2.1 V - 2.4 V     1.71 V - 2.1 V
     ===========================================================================================
-    0 WS (1 CPU cycle)    0 < HCLK ≤ 30     0 < HCLK ≤ 24     0 < HCLK ≤ 18     0 < HCLK ≤ 16
-    1 WS (2 CPU cycles)  30 < HCLK ≤ 60    24 < HCLK ≤ 48    18 < HCLK ≤ 36    16 < HCLK ≤ 32
-    2 WS (3 CPU cycles)  60 < HCLK ≤ 84    48 < HCLK ≤ 72    36 < HCLK ≤ 54    32 < HCLK ≤ 48
-    3 WS (4 CPU cycles)        -           72 < HCLK ≤ 84    54 < HCLK ≤ 72    48 < HCLK ≤ 64
-    4 WS (5 CPU cycles)        -                 -           72 < HCLK ≤ 84    64 < HCLK ≤ 80
-    5 WS (6 CPU cycles)        -                 -                 -           80 < HCLK ≤ 84
+    0 WS (1 CPU cycle)    0 < HCLK в‰¤ 30     0 < HCLK в‰¤ 24     0 < HCLK в‰¤ 18     0 < HCLK в‰¤ 16
+    1 WS (2 CPU cycles)  30 < HCLK в‰¤ 60    24 < HCLK в‰¤ 48    18 < HCLK в‰¤ 36    16 < HCLK в‰¤ 32
+    2 WS (3 CPU cycles)  60 < HCLK в‰¤ 84    48 < HCLK в‰¤ 72    36 < HCLK в‰¤ 54    32 < HCLK в‰¤ 48
+    3 WS (4 CPU cycles)        -           72 < HCLK в‰¤ 84    54 < HCLK в‰¤ 72    48 < HCLK в‰¤ 64
+    4 WS (5 CPU cycles)        -                 -           72 < HCLK в‰¤ 84    64 < HCLK в‰¤ 80
+    5 WS (6 CPU cycles)        -                 -                 -           80 < HCLK в‰¤ 84
       
                                                                                                  */
-  
   FLASH->ACR = (
     0 * FLASH_ACR_LATENCY_0WS        | /*                                                        */
     0 * FLASH_ACR_LATENCY_1WS        | /*                                                        */
