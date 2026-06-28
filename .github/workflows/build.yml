@@ -35,4 +35,12 @@ jobs:
         run: echo "/home/runner/arm-gcc-toolchain/bin" >> $GITHUB_PATH
 
       - name: Build
-        run: make -n all 2>&1
+        run: |
+          echo "=== Minimal make test ==="
+          echo 'all:' > /tmp/test.mk
+          echo '	@echo hello' >> /tmp/test.mk
+          make -f /tmp/test.mk all
+          echo "=== Makefile content ==="
+          cat -A Makefile | head -20
+          echo "=== make -d all ==="
+          make -d all 2>&1 | head -40 || echo "Exit: $?"
