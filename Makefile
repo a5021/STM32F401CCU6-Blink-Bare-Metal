@@ -1,4 +1,4 @@
-﻿TARGET = project
+TARGET = project
 BUILD_DIR = build
 CMSIS_CORE_DIR   = CMSIS/core
 CMSIS_DEVICE_DIR = CMSIS/device
@@ -77,7 +77,7 @@ download_cmsis: | $(CMSIS_CORE_DIR) $(CMSIS_DEVICE_DIR)
 	@for f in $(CMSIS_CORE_FILES); do \
 	  if [ ! -f "$(CMSIS_CORE_DIR)/$$f" ]; then \
 		echo "  Downloading: $$f"; \
-		$(CURL) -sSL -o "$(CMSIS_CORE_DIR)/$$f" "$(CMSIS_CORE_RAW)/$$f"; \
+		$(CURL) -fsSL -o "$(CMSIS_CORE_DIR)/$$f" "$(CMSIS_CORE_RAW)/$$f" || exit 1; \
 	  fi \
 	done
 	@for f in $(CMSIS_DEVICE_FILES); do \
@@ -88,28 +88,28 @@ download_cmsis: | $(CMSIS_CORE_DIR) $(CMSIS_DEVICE_DIR)
 	  esac; \
 	  if [ ! -f "$(CMSIS_DEVICE_DIR)/$$f" ]; then \
 		echo "  Downloading: $$f"; \
-		$(CURL) -sSL -o "$(CMSIS_DEVICE_DIR)/$$f" "$(CMSIS_DEVICE_RAW)/$$p"; \
+		$(CURL) -fsSL -o "$(CMSIS_DEVICE_DIR)/$$f" "$(CMSIS_DEVICE_RAW)/$$p" || exit 1; \
 	  fi \
 	done
 
 download_svd:
 	@if [ ! -f "$(SVD_FILE)" ]; then \
 	  echo "  Downloading: $(SVD_FILE)"; \
-	  $(CURL) -sSL -o "stm32f4_svd.zip" "$(SVD_ZIP_URL)"; \
-	  unzip -j -o "stm32f4_svd.zip" "*/$(SVD_FILE)" -d .; \
+	  $(CURL) -fsSL -o "stm32f4_svd.zip" "$(SVD_ZIP_URL)" || exit 1; \
+	  unzip -j -o "stm32f4_svd.zip" "*/$(SVD_FILE)" -d . || exit 1; \
 	  rm -f "stm32f4_svd.zip"; \
 	fi
 
 download_iar_startup: | $(IAR_DIR)
 	@if [ ! -f "$(IAR_STARTUP)" ]; then \
 	  echo "  Downloading: $(IAR_STARTUP)"; \
-	  $(CURL) -sSL -o "$(IAR_STARTUP)" "$(CMSIS_DEVICE_RAW)/Source/Templates/iar/startup_stm32f401xc.s"; \
+	  $(CURL) -fsSL -o "$(IAR_STARTUP)" "$(CMSIS_DEVICE_RAW)/Source/Templates/iar/startup_stm32f401xc.s" || exit 1; \
 	fi
 
 download_mdk_startup: | $(MDK_DIR)
 	@if [ ! -f "$(MDK_STARTUP)" ]; then \
 	  echo "  Downloading: $(MDK_STARTUP)"; \
-	  $(CURL) -sSL -o "$(MDK_STARTUP)" "$(CMSIS_DEVICE_RAW)/Source/Templates/arm/startup_stm32f401xc.s"; \
+	  $(CURL) -fsSL -o "$(MDK_STARTUP)" "$(CMSIS_DEVICE_RAW)/Source/Templates/arm/startup_stm32f401xc.s" || exit 1; \
 	fi
 
 download_licenses:
@@ -119,7 +119,7 @@ download_licenses:
 	  set -- $$pair; url="$$1"; file="$$2"; \
 	  if [ ! -f "$$file" ]; then \
 		echo "  Downloading: $$file"; \
-		$(CURL) -sSL -o "$$file" "$$url"; \
+		$(CURL) -fsSL -o "$$file" "$$url" || exit 1; \
 	  fi \
 	done
 
