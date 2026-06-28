@@ -127,6 +127,20 @@ download: download_cmsis download_svd download_iar_startup download_mdk_startup 
 
 deps: download_cmsis download_svd download_licenses
 
+# Pattern rules: if make needs a CMSIS file that doesn't exist, download it on demand.
+# This allows `make all` to work on a fresh checkout without a separate `make deps` step.
+$(CMSIS_CORE_DIR)/%: | $(CMSIS_CORE_DIR)
+	$(CURL) -fsSL -o "$@" "$(CMSIS_CORE_RAW)/$*"
+
+$(CMSIS_DEVICE_DIR)/%: | $(CMSIS_DEVICE_DIR)
+	@name="$*"; \
+	  case "$$name" in \
+	    system_stm32f4xx.c)   url="$(CMSIS_DEVICE_RAW)/Source/Templates/$$name" ;; \
+	    startup_stm32f401xc.s) url="$(CMSIS_DEVICE_RAW)/Source/Templates/gcc/$$name" ;; \
+	    *)                    url="$(CMSIS_DEVICE_RAW)/Include/$$name" ;; \
+	  esac; \
+	  $(CURL) -fsSL -o "$@" "$$url"
+
 $(CMSIS_CORE_DIR):
 	mkdir -p $@
 
