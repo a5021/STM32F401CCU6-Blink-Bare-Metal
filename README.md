@@ -85,19 +85,19 @@ Each IDE folder has a README with setup and CLI build instructions.
 +-- main.c                        Application + init
 +-- main.h                        Macros, clock tree, GPIO helpers
 +-- crt0.c                        __libc_init_array stub (SES bundled GCC)
-+-- Makefile                       GCC build + download targets
++-- Makefile                      GCC build + download targets
 +-- STM32F401CCUX_FLASH.ld        GNU linker script
-+-- LICENSE                        MIT License
-+-- NOTICE.md                      Third-party licenses
++-- LICENSE                       MIT License
++-- NOTICE.md                     Third-party licenses
 +-- stm32f401cc.jflash            J-Flash project
-+-- project.jdebug                 J-Link debugger project
-+-- CMSIS/                         Downloaded at build time (gitignored)
-+   +-- core/                      ARM CMSIS headers + LICENSE.txt
-+   +-- device/                    STM32F4xx headers + startup + LICENSE.md
++-- project.jdebug                J-Link debugger project
++-- CMSIS/                        Downloaded at build time (gitignored)
++   +-- core/                     ARM CMSIS headers + LICENSE.txt
++   +-- device/                   STM32F4xx headers + startup + LICENSE.md
 +-- ide/
-    +-- EWARM/                     IAR Embedded Workbench project
-    +-- MDK-ARM/                   Keil MDK-ARM project
-    +-- SES/                       SEGGER Embedded Studio project
+    +-- EWARM/                    IAR Embedded Workbench project
+    +-- MDK-ARM/                  Keil MDK-ARM project
+    +-- SES/                      SEGGER Embedded Studio project
 ```
 
 ## Clock Tree
