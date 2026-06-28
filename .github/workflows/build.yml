@@ -17,7 +17,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/arm-gcc-toolchain
-          key: arm-gcc-9-2020-q2-update
+          key: arm-gcc-13.3.rel1
 
       - name: Install ARM GCC toolchain
         if: steps.cache-toolchain.outputs.cache-hit != 'true'
@@ -25,7 +25,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xz-utils wget
           mkdir -p /home/runner/arm-gcc-toolchain
-          wget -qO- "https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2"             | tar -xjf - -C /home/runner/arm-gcc-toolchain --strip=1
+          wget -qO- "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz" \
+            | tar -xJf - -C /home/runner/arm-gcc-toolchain --strip=1
 
       - name: Add toolchain to PATH
         run: echo "/home/runner/arm-gcc-toolchain/bin" >> $GITHUB_PATH
