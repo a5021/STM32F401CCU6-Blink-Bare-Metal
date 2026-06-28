@@ -57,6 +57,7 @@ Output in `build/`: `project.elf`, `project.hex`, `project.bin`.
 | `make download_svd` | Download STM32F401.svd |
 | `make download_iar_startup` | Download IAR startup file |
 | `make download_mdk_startup` | Download MDK-ARM startup file |
+| `make download_licenses` | Download third-party license files |
 | `make download` | Download all of the above |
 | `make program` | Flash via ST-LINK |
 | `make jprogram` | Flash via J-Link |

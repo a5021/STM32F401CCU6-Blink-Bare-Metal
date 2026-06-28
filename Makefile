@@ -2,10 +2,13 @@
 BUILD_DIR = build
 SDK_DIR = CMSIS
 
-CMSIS_CORE_RAW   = https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/CMSIS/Core/Include
-CMSIS_DEVICE_RAW = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master
-SVD_ZIP_URL      = https://raw.githubusercontent.com/stm32-rs/stm32-rs/master/svd/vendor/en.stm32f4-svd.zip
-SVD_FILE         = STM32F401.svd
+CMSIS_CORE_RAW    = https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/CMSIS/Core/Include
+CMSIS_DEVICE_RAW  = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master
+SVD_ZIP_URL       = https://raw.githubusercontent.com/stm32-rs/stm32-rs/master/svd/vendor/en.stm32f4-svd.zip
+SVD_FILE          = STM32F401.svd
+LICENSES_DIR      = LICENSES
+CMSIS_LICENSE_URL = https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/LICENSE.txt
+ST_LICENSE_URL    = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master/LICENSE.md
 
 CC = arm-none-eabi-gcc
 AS = arm-none-eabi-gcc -x assembler-with-cpp
@@ -68,7 +71,7 @@ IAR_STARTUP        = $(IAR_DIR)/startup_stm32f401xc.s
 MDK_DIR            = ide/MDK-ARM
 MDK_STARTUP        = $(MDK_DIR)/startup_stm32f401xc.s
 
-.PHONY: deps download download_cmsis download_svd download_iar_startup download_mdk_startup
+.PHONY: deps download download_cmsis download_svd download_iar_startup download_mdk_startup download_licenses
 
 download_cmsis: | $(SDK_DIR)
 	@for f in $(CMSIS_CORE_FILES); do \
@@ -109,9 +112,23 @@ download_mdk_startup: | $(MDK_DIR)
 	  $(CURL) -sSL -o "$(MDK_STARTUP)" "$(CMSIS_DEVICE_RAW)/Source/Templates/arm/startup_stm32f401xc.s"; \
 	fi
 
-download: download_cmsis download_svd download_iar_startup download_mdk_startup
+download_licenses: | $(LICENSES_DIR)
+	@for pair in \
+	  "$(CMSIS_LICENSE_URL) $(LICENSES_DIR)/CMSIS_5_LICENSE.txt" \
+	  "$(ST_LICENSE_URL)    $(LICENSES_DIR)/cmsis_device_f4_LICENSE.md"; do \
+	  set -- $$pair; url="$$1"; file="$$2"; \
+	  if [ ! -f "$$file" ]; then \
+		echo "  Downloading: $$file"; \
+		$(CURL) -sSL -o "$$file" "$$url"; \
+	  fi \
+	done
 
-deps: download_cmsis download_svd
+download: download_cmsis download_svd download_iar_startup download_mdk_startup download_licenses
+
+deps: download_cmsis download_svd download_licenses
+
+$(LICENSES_DIR):
+	mkdir -p $@
 
 $(SDK_DIR):
 	mkdir -p $@
@@ -164,6 +181,6 @@ clean:
 	rm -fR $(BUILD_DIR)
 
 clean_all: clean
-	rm -fR $(SDK_DIR) && rm -f $(SVD_FILE) && rm -f $(IAR_STARTUP) $(MDK_STARTUP) ide/SES/STM32F401x_Vectors.s ide/SES/STM32F4xx_Startup.s ide/SES/thumb_crt0.s
+	rm -fR $(SDK_DIR) $(LICENSES_DIR) && rm -f $(SVD_FILE) && rm -f $(IAR_STARTUP) $(MDK_STARTUP) ide/SES/STM32F401x_Vectors.s ide/SES/STM32F4xx_Startup.s ide/SES/thumb_crt0.s
 
 -include $(wildcard $(BUILD_DIR)/*.d)
