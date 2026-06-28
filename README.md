@@ -90,6 +90,8 @@ Run `make download` from the project root before opening the IDE to fetch depend
 +-- stm32f401cc.jflash            J-Flash project
 +-- project.jdebug                 J-Link debugger project
 +-- CMSIS/                         Downloaded at build time (gitignored)
++   +-- core/                      ARM CMSIS headers + LICENSE.txt
++   +-- device/                    STM32F4xx headers + startup + LICENSE.md
 +-- ide/
     +-- EWARM/                     IAR Embedded Workbench project
     +-- MDK-ARM/                   Keil MDK-ARM project

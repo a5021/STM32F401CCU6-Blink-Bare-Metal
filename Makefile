@@ -1,6 +1,7 @@
 ﻿TARGET = project
 BUILD_DIR = build
-SDK_DIR = CMSIS
+CMSIS_CORE_DIR   = CMSIS/core
+CMSIS_DEVICE_DIR = CMSIS/device
 
 CMSIS_CORE_RAW    = https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/CMSIS/Core/Include
 CMSIS_DEVICE_RAW  = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master
@@ -16,7 +17,7 @@ SZ = arm-none-eabi-size
 
 MCU = -mcpu=cortex-m4 -mthumb
 DEF = -DSTM32F401xC
-INC = -I$(SDK_DIR)
+INC = -I$(CMSIS_CORE_DIR) -I$(CMSIS_DEVICE_DIR)
 OPT = -O3 -g0 -flto
 
 ifdef GCC_PATH
@@ -58,12 +59,12 @@ LDSCRIPT = STM32F401CCUX_FLASH.ld
 LIB = -lc -lm -lnosys
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIB) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
-SRC = main.c crt0.c $(SDK_DIR)/system_stm32f4xx.c
-ASM = $(SDK_DIR)/startup_stm32f401xc.s
+SRC = main.c crt0.c $(CMSIS_DEVICE_DIR)/system_stm32f4xx.c
+ASM = $(CMSIS_DEVICE_DIR)/startup_stm32f401xc.s
 
 all: deps $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
-CMSIS_CORE_FILES = core_cm4.h cmsis_version.h cmsis_compiler.h cmsis_gcc.h mpu_armv7.h
+CMSIS_CORE_FILES = core_cm4.h cmsis_version.h cmsis_compiler.h cmsis_gcc.h cmsis_iccarm.h mpu_armv7.h
 CMSIS_DEVICE_FILES = stm32f4xx.h stm32f401xc.h system_stm32f4xx.h system_stm32f4xx.c startup_stm32f401xc.s
 IAR_DIR            = ide/EWARM
 IAR_STARTUP        = $(IAR_DIR)/startup_stm32f401xc.s
@@ -72,11 +73,11 @@ MDK_STARTUP        = $(MDK_DIR)/startup_stm32f401xc.s
 
 .PHONY: deps download download_cmsis download_svd download_iar_startup download_mdk_startup download_licenses
 
-download_cmsis: | $(SDK_DIR)
+download_cmsis: | $(CMSIS_CORE_DIR) $(CMSIS_DEVICE_DIR)
 	@for f in $(CMSIS_CORE_FILES); do \
-	  if [ ! -f "$(SDK_DIR)/$$f" ]; then \
+	  if [ ! -f "$(CMSIS_CORE_DIR)/$$f" ]; then \
 		echo "  Downloading: $$f"; \
-		$(CURL) -sSL -o "$(SDK_DIR)/$$f" "$(CMSIS_CORE_RAW)/$$f"; \
+		$(CURL) -sSL -o "$(CMSIS_CORE_DIR)/$$f" "$(CMSIS_CORE_RAW)/$$f"; \
 	  fi \
 	done
 	@for f in $(CMSIS_DEVICE_FILES); do \
@@ -85,9 +86,9 @@ download_cmsis: | $(SDK_DIR)
 	    startup_stm32f401xc.s) p="Source/Templates/gcc/$$f" ;; \
 	    *)                    p="Include/$$f" ;; \
 	  esac; \
-	  if [ ! -f "$(SDK_DIR)/$$f" ]; then \
+	  if [ ! -f "$(CMSIS_DEVICE_DIR)/$$f" ]; then \
 		echo "  Downloading: $$f"; \
-		$(CURL) -sSL -o "$(SDK_DIR)/$$f" "$(CMSIS_DEVICE_RAW)/$$p"; \
+		$(CURL) -sSL -o "$(CMSIS_DEVICE_DIR)/$$f" "$(CMSIS_DEVICE_RAW)/$$p"; \
 	  fi \
 	done
 
@@ -113,8 +114,8 @@ download_mdk_startup: | $(MDK_DIR)
 
 download_licenses:
 	@for pair in \
-	  "$(CMSIS_LICENSE_URL) $(SDK_DIR)/LICENSE.txt" \
-	  "$(ST_LICENSE_URL)    $(SDK_DIR)/LICENSE.md"; do \
+	  "$(CMSIS_LICENSE_URL) $(CMSIS_CORE_DIR)/LICENSE.txt" \
+	  "$(ST_LICENSE_URL)    $(CMSIS_DEVICE_DIR)/LICENSE.md"; do \
 	  set -- $$pair; url="$$1"; file="$$2"; \
 	  if [ ! -f "$$file" ]; then \
 		echo "  Downloading: $$file"; \
@@ -126,7 +127,10 @@ download: download_cmsis download_svd download_iar_startup download_mdk_startup 
 
 deps: download_cmsis download_svd download_licenses
 
-$(SDK_DIR):
+$(CMSIS_CORE_DIR):
+	mkdir -p $@
+
+$(CMSIS_DEVICE_DIR):
 	mkdir -p $@
 
 $(IAR_DIR):
@@ -177,6 +181,6 @@ clean:
 	rm -fR $(BUILD_DIR)
 
 clean_all: clean
-	rm -fR $(SDK_DIR) && rm -f $(SVD_FILE) && rm -f $(IAR_STARTUP) $(MDK_STARTUP) ide/SES/STM32F401x_Vectors.s ide/SES/STM32F4xx_Startup.s ide/SES/thumb_crt0.s
+	rm -fR $(CMSIS_CORE_DIR) $(CMSIS_DEVICE_DIR) && rm -f $(SVD_FILE) && rm -f $(IAR_STARTUP) $(MDK_STARTUP) ide/SES/STM32F401x_Vectors.s ide/SES/STM32F4xx_Startup.s ide/SES/thumb_crt0.s
 
 -include $(wildcard $(BUILD_DIR)/*.d)

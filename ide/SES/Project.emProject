@@ -19,14 +19,14 @@
       arm_target_device_name="STM32F401CC"
       arm_target_interface_type="SWD"
       c_preprocessor_definitions="STM32F401xC;__STM32F4xx_FAMILY;__STM32F401_SUBFAMILY;ARM_MATH_CM4;FLASH_PLACEMENT=1"
-      c_user_include_directories="../../CMSIS"
+      c_user_include_directories="../../CMSIS/core;../../CMSIS/device"
       debug_register_definition_file="$(ProjectDir)/STM32F401x_Registers.xml"
       debug_target_connection="J-Link"
       gcc_entry_point="Reset_Handler"
       linker_memory_map_file="$(ProjectDir)/STM32F401CC_MemoryMap.xml"
       linker_output_format="hex"
       linker_section_placement_file="$(ProjectDir)/flash_placement.xml"
-      macros="DeviceHeaderFile=../../CMSIS/stm32f4xx.h;DeviceLibraryIdentifier=M4;DeviceSystemFile=../../CMSIS/system_stm32f4xx.c;DeviceVectorsFile=../../CMSIS/startup_stm32f401xc.s;DeviceFamily=STM32F4xx;DeviceSubFamily=STM32F401;Target=STM32F401CC;Placement=Flash"
+      macros="DeviceHeaderFile=../../CMSIS/device/stm32f4xx.h;DeviceLibraryIdentifier=M4;DeviceSystemFile=../../CMSIS/device/system_stm32f4xx.c;DeviceVectorsFile=../../CMSIS/device/startup_stm32f401xc.s;DeviceFamily=STM32F4xx;DeviceSubFamily=STM32F401;Target=STM32F401CC;Placement=Flash"
       project_directory=""
       project_type="Executable"
       target_reset_script="Reset();"
@@ -35,27 +35,27 @@
       <configuration Name="Common" filter="c;cpp;cxx;cc;h;s;asm;inc" />
       <file file_name="../../main.c" />
       <file file_name="../../crt0.c" />
-      <file file_name="../../CMSIS/system_stm32f4xx.c" />
-      <file file_name="../../CMSIS/startup_stm32f401xc.s" />
+      <file file_name="../../CMSIS/device/system_stm32f4xx.c" />
+      <file file_name="../../CMSIS/device/startup_stm32f401xc.s" />
     </folder>
     <folder Name="inc">
       <file file_name="../../main.h" />
-      <file file_name="../../CMSIS/cmsis_compiler.h" />
-      <file file_name="../../CMSIS/cmsis_gcc.h" />
-      <file file_name="../../CMSIS/cmsis_version.h" />
-      <file file_name="../../CMSIS/core_cm4.h" />
-      <file file_name="../../CMSIS/mpu_armv7.h" />
-      <file file_name="../../CMSIS/stm32f4xx.h" />
-      <file file_name="../../CMSIS/stm32f401xc.h" />
-      <file file_name="../../CMSIS/system_stm32f4xx.h" />
+      <file file_name="../../CMSIS/core/cmsis_compiler.h" />
+      <file file_name="../../CMSIS/core/cmsis_gcc.h" />
+      <file file_name="../../CMSIS/core/cmsis_version.h" />
+      <file file_name="../../CMSIS/core/core_cm4.h" />
+      <file file_name="../../CMSIS/core/mpu_armv7.h" />
+      <file file_name="../../CMSIS/device/stm32f4xx.h" />
+      <file file_name="../../CMSIS/device/stm32f401xc.h" />
+      <file file_name="../../CMSIS/device/system_stm32f4xx.h" />
       <configuration Name="Debug" build_exclude_from_build="Yes" />
     </folder>
     <configuration
       Name="Debug"
       arm_assembler_variant="gcc"
       arm_compiler_variant="gcc"
-      c_system_include_directories="$(StudioDir)/include;../../CMSIS"
-      c_user_include_directories=".;../../CMSIS"
+      c_system_include_directories="$(StudioDir)/include;../../CMSIS/core;../../CMSIS/device"
+      c_user_include_directories=".;../../CMSIS/core;../../CMSIS/device"
       debug_target_connection="J-Link"
       gcc_c_language_standard="gnu11"
       gcc_cplusplus_language_standard="gnu++1z"
@@ -68,7 +68,7 @@
       Name="Release"
       arm_assembler_variant="gcc"
       arm_compiler_variant="clang"
-      c_system_include_directories="$(StudioDir)/include;../../CMSIS"
+      c_system_include_directories="$(StudioDir)/include;../../CMSIS/core;../../CMSIS/device"
       debug_target_connection="Simulator"
       gcc_c_language_standard="gnu11"
       gcc_cplusplus_language_standard="gnu++1z"

@@ -15,9 +15,9 @@ This downloads CMSIS headers and the IAR-specific startup file into `CMSIS/` and
 
 ## Build (Command Line)
 
-    "C:\Program Files\IAR Systems\Embedded Workbench 9.x\common\bin\IarBuild.exe" ide/EWARM/Project.eww -build STM32F401CC
+    "C:\Program Files\IAR Systems\Embedded Workbench 9.x\common\bin\IarBuild.exe" ide/EWARM/STM32F401CC.ewp -build "STM32F401CCU6 Blink Bare Metal"
 
-Adjust the workspace path and project configuration name to match your setup.
+Adjust the IAR path to match your installed version.
 
 ## Build (GUI)
 

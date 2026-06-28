@@ -12,9 +12,13 @@ ide/SES/*.emSession
 ide/SES/*.jlink
 ide/EWARM/*.dep
 ide/EWARM/*.ewt
+ide/EWARM/settings/
+ide/EWARM/STM32F401CC/
+ide/EWARM/STM32F401CCU6 Blink Bare Metal/
 ide/MDK-ARM/*.uvoptx
 ide/MDK-ARM/Objects/
 ide/MDK-ARM/Listings/
 ide/MDK-ARM/RTE/
 ide/MDK-ARM/DebugConfig/
+ide/MDK-ARM/build.log
 ide/MDK-ARM/build_log*.txt

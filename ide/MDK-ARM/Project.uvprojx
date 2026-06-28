@@ -340,7 +340,7 @@
               <MiscControls>-Wpedantic -Wextra</MiscControls>
               <Define>STM32F401xC</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\CMSIS</IncludePath>
+              <IncludePath>..\..\CMSIS\core;..\..\CMSIS\device</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -397,7 +397,7 @@
             <File>
               <FileName>system_stm32f4xx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\CMSIS\system_stm32f4xx.c</FilePath>
+              <FilePath>..\..\CMSIS\device\system_stm32f4xx.c</FilePath>
             </File>
             <File>
               <FileName>startup_stm32f401xc.s</FileName>

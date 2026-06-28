@@ -10,4 +10,4 @@ The following third‑party components are **not part of this repository**. They
 | STM32F4xx device headers, system and startup files | BSD-3-Clause | STMicroelectronics |
 | STM32F401.svd (from stm32-rs) | MIT | stm32-rs contributors |
 
-Full license texts (`CMSIS/LICENSE.txt`, `CMSIS/LICENSE.md`) are downloaded alongside the files when running `make download`.
+Full license texts (`CMSIS/core/LICENSE.txt`, `CMSIS/device/LICENSE.md`) are downloaded alongside the files when running `make download`.

@@ -293,7 +293,7 @@
                 <option>
                     <name>CCAllowList</name>
                     <version>1</version>
-                    <state>00000000</state>
+                    <state>11111110</state>
                 </option>
                 <option>
                     <name>CCDebugInfo</name>
@@ -353,7 +353,8 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>$PROJ_DIR$\..\..\CMSIS</state>
+                    <state>$PROJ_DIR$\..\..\CMSIS\core</state>
+                    <state>$PROJ_DIR$\..\..\CMSIS\device</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -369,16 +370,16 @@
                 </option>
                 <option>
                     <name>CCOptLevel</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCOptStrategy</name>
                     <version>0</version>
-                    <state>2</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>3</state>
                 </option>
                 <option>
                     <name>CCPosIndRopi</name>
@@ -427,7 +428,7 @@
                 <option>
                     <name>CCOptStrategySlave</name>
                     <version>0</version>
-                    <state>2</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>CCGuardCalls</name>
@@ -1076,6 +1077,11 @@
                 </option>
             </data>
         </settings>
+        <settings>
+            <name>Coder</name>
+            <archiveVersion>0</archiveVersion>
+            <data />
+        </settings>
     </configuration>
     <group>
         <name>src</name>
@@ -1086,7 +1092,7 @@
             <name>$PROJ_DIR$\startup_stm32f401xc.s</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\CMSIS\system_stm32f4xx.c</name>
+            <name>$PROJ_DIR$\..\..\CMSIS\device\system_stm32f4xx.c</name>
         </file>
     </group>
 </project>

@@ -17,8 +17,8 @@ No additional startup files are required (the GCC startup is already downloaded 
 
 ## Build (Command Line)
 
-    "C:\Program Files\SEGGER Embedded Studio 8.28\bin\emBuild.exe" -config Debug   ide/SES/Project.emProject
-    "C:\Program Files\SEGGER Embedded Studio 8.28\bin\emBuild.exe" -config Release ide/SES/Project.emProject
+    "C:\Program Files\SEGGER\SEGGER Embedded Studio 8.28\bin\emBuild.exe" -config Debug   ide/SES/Project.emProject
+    "C:\Program Files\SEGGER\SEGGER Embedded Studio 8.28\bin\emBuild.exe" -config Release ide/SES/Project.emProject
 
 Adjust the SES path to match your installed version.
 
