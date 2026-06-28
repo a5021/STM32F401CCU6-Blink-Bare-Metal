@@ -12,7 +12,7 @@ RTC-wakeup blink demo for STM32F401CCU6. On each RTC wakeup event it flashes the
 
 - Register-level, bare-metal firmware (no HAL, no CMSIS-DSP)
 - System clock 100 MHz from HSE 25 MHz via PLL (25 / 15 x 120 / 2)
-- RTC with LSE oscillator, wakeup timer period ~16 s
+- RTC with LSE oscillator, wakeup timer period ~1 s
 - Three fast LED flashes (30 ms each toggle) on each RTC wakeup
 - USART6 output: date and time in `DD.MM.YYYY HH:MM:SS` format at 115200 baud
 - Instruction & data cache enabled, prefetch active, 2 wait states
