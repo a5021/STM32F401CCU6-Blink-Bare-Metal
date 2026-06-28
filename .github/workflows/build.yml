@@ -34,5 +34,5 @@ jobs:
       - name: Add toolchain to PATH
         run: echo "/home/runner/arm-gcc-toolchain/bin" >> $GITHUB_PATH
 
-      - name: Test shell
-        run: echo "Hello from runner, pwd=$(pwd), make=$(which make || echo not found)"
+      - name: Build
+        run: make --version
