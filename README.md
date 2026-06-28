@@ -121,10 +121,11 @@ SYSCLK = 100 MHz
 | Parameter | Value |
 |-----------|-------|
 | Clock source | LSE (32768 Hz) |
-| Asynchronous prescaler (PREDIV_A) | 128 |
-| Synchronous prescaler (PREDIV_S) | 256 |
+| Asynchronous prescaler (PREDIV_A) | 127 |
+| Synchronous prescaler (PREDIV_S) | 255 |
+| Wakeup timer clock | RTCCLK/16 = 2048 Hz (WUCKSEL = 000) |
 | Wakeup timer reload (WUTR) | 2047 |
-| Wakeup interval | ~16 seconds |
+| Wakeup interval | ~1 second |
 
 ## Firmware Flow
 
