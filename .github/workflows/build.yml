@@ -34,22 +34,7 @@ jobs:
       - name: Add toolchain to PATH
         run: echo "/home/runner/arm-gcc-toolchain/bin" >> $GITHUB_PATH
 
-      - name: Test deps
-        run: |
-          echo "=== make deps ===" > debug1.log
-          make deps >> debug1.log 2>&1 || echo "DEPS EXIT: $?" >> debug1.log
-          echo "=== ls CMSIS dirs ===" >> debug1.log
-          ls -la CMSIS/core CMSIS/device >> debug1.log 2>&1 || echo "dirs not found" >> debug1.log
-        shell: bash
-      - name: Test compile (debug make)
-        run: |
-          make -d all > debug2_full.log 2>&1; rc=$?
-          echo "MAKE EXIT: $rc" >> debug2_full.log
-          { head -n 80 debug2_full.log; echo "..."; tail -n 80 debug2_full.log; } > debug2.log
-        shell: bash
-      - name: Upload debug logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-logs
-          path: "debug*.log"
+      - name: Download CMSIS files
+        run: make deps
+      - name: Build
+        run: make all
