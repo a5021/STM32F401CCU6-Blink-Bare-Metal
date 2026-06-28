@@ -34,12 +34,18 @@ jobs:
       - name: Add toolchain to PATH
         run: echo "/home/runner/arm-gcc-toolchain/bin" >> $GITHUB_PATH
 
-      - name: Build
+      - name: Debug
         run: |
-          echo "## Minimal make test" >> $GITHUB_STEP_SUMMARY
-          echo 'all:' > /tmp/test.mk
-          echo '	@echo hello' >> /tmp/test.mk
-          make -f /tmp/test.mk all >> $GITHUB_STEP_SUMMARY 2>&1
-          echo "make -f test: OK" >> $GITHUB_STEP_SUMMARY
-          echo "## make -p (print db)" >> $GITHUB_STEP_SUMMARY
-          make -p all 2>&1 | head -30 >> $GITHUB_STEP_SUMMARY || echo "Exit: $?" >> $GITHUB_STEP_SUMMARY
+          echo "=== make deps ===" > debug.log
+          make deps >> debug.log 2>&1 || echo "FAILED: $?" >> debug.log
+          echo "=== ls CMSIS dirs ===" >> debug.log
+          ls -la CMSIS/core CMSIS/device >> debug.log 2>&1 || echo "dirs not found" >> debug.log
+          echo "=== make -n all ===" >> debug.log
+          make -n all >> debug.log 2>&1 || echo "FAILED: $?" >> debug.log
+          cat debug.log
+        shell: bash
+      - name: Upload debug log
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-log
+          path: debug.log
