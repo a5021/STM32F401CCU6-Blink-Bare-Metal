@@ -12,6 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl unzip xz-utils wget
+
       - name: Cache ARM GCC toolchain
         id: cache-toolchain
         uses: actions/cache@v4
@@ -22,8 +27,6 @@ jobs:
       - name: Install ARM GCC toolchain
         if: steps.cache-toolchain.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xz-utils wget
           mkdir -p /home/runner/arm-gcc-toolchain
           wget -qO- "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz" \
             | tar -xJf - -C /home/runner/arm-gcc-toolchain --strip=1
