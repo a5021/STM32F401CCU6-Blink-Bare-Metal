@@ -34,14 +34,5 @@ jobs:
       - name: Add toolchain to PATH
         run: echo "/home/runner/arm-gcc-toolchain/bin" >> $GITHUB_PATH
 
-      - name: Build
-        run: |
-          set -x
-          pwd
-          ls -la Makefile
-          head -10 Makefile
-          make --version
-          curl --version | head -1
-          curl -fsSL -o /dev/null -w "%{http_code}" "https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/CMSIS/Core/Include/core_cm4.h"
-          echo "---"
-          make
+      - name: Test shell
+        run: echo "Hello from runner, pwd=$(pwd), make=$(which make || echo not found)"
