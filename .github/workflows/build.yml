@@ -35,4 +35,4 @@ jobs:
         run: echo "/home/runner/arm-gcc-toolchain/bin" >> $GITHUB_PATH
 
       - name: Build
-        run: make --version
+        run: make -n all 2>&1
