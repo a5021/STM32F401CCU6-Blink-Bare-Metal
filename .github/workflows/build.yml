@@ -36,11 +36,10 @@ jobs:
 
       - name: Build
         run: |
-          echo "=== Minimal make test ==="
+          echo "## Minimal make test" >> $GITHUB_STEP_SUMMARY
           echo 'all:' > /tmp/test.mk
           echo '	@echo hello' >> /tmp/test.mk
-          make -f /tmp/test.mk all
-          echo "=== Makefile content ==="
-          cat -A Makefile | head -20
-          echo "=== make -d all ==="
-          make -d all 2>&1 | head -40 || echo "Exit: $?"
+          make -f /tmp/test.mk all >> $GITHUB_STEP_SUMMARY 2>&1
+          echo "make -f test: OK" >> $GITHUB_STEP_SUMMARY
+          echo "## make -p (print db)" >> $GITHUB_STEP_SUMMARY
+          make -p all 2>&1 | head -30 >> $GITHUB_STEP_SUMMARY || echo "Exit: $?" >> $GITHUB_STEP_SUMMARY
