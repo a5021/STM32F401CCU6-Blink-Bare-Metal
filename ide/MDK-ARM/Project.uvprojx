@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>STM32F401CCUx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.15.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.16.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000,0x00010000) IROM(0x08000000,0x00040000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -338,9 +338,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>-Wpedantic -Wextra</MiscControls>
-              <Define></Define>
+              <Define>STM32F401xC</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\inc</IncludePath>
+              <IncludePath>..\..\CMSIS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -387,15 +387,24 @@
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\main.c</FilePath>
+              <FilePath>..\..\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>crt0.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\crt0.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_stm32f4xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\CMSIS\system_stm32f4xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>startup_stm32f401xc.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\..\ide\MDK-ARM\startup_stm32f401xc.s</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>::CMSIS</GroupName>
-        </Group>
-        <Group>
-          <GroupName>::Device</GroupName>
         </Group>
       </Groups>
     </Target>
@@ -404,55 +413,13 @@
   <RTE>
     <apis/>
     <components>
-      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.6.0" condition="ARMv6_7_8-M Device">
-        <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="5.9.0"/>
-        <targetInfos>
-          <targetInfo name="STM32F401CCU6-Blink-Bare-Metal"/>
-        </targetInfos>
-      </component>
-      <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="2.6.3" condition="STM32F4 CMSIS">
-        <package name="STM32F4xx_DFP" schemaVersion="1.6.3" url="http://www.keil.com/pack/" vendor="Keil" version="2.15.0"/>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="6.2.0" condition="ARMv6_7_8-M Device">
+        <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="6.3.0"/>
         <targetInfos>
           <targetInfo name="STM32F401CCU6-Blink-Bare-Metal"/>
         </targetInfos>
       </component>
     </components>
-    <files>
-      <file attr="config" category="source" name="CMSIS\RTOS2\RTX\Config\RTX_Config.c" version="5.1.0">
-        <instance index="0" removed="1">RTE\CMSIS\RTX_Config.c</instance>
-        <component Capiversion="2.1.3" Cclass="CMSIS" Cgroup="RTOS2" Csub="Keil RTX5" Cvariant="Library" Cvendor="ARM" Cversion="5.5.0" condition="RTOS2 RTX5 Lib"/>
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.5.1"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="header" name="CMSIS\RTOS2\RTX\Config\RTX_Config.h" version="5.5.0">
-        <instance index="0" removed="1">RTE\CMSIS\RTX_Config.h</instance>
-        <component Capiversion="2.1.3" Cclass="CMSIS" Cgroup="RTOS2" Csub="Keil RTX5" Cvariant="Library" Cvendor="ARM" Cversion="5.5.0" condition="RTOS2 RTX5 Lib"/>
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.5.1"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="header" name="Device\Source\startup_config.h" version="8.17.0">
-        <instance index="0" removed="1">RTE\Device\STM32F401CCUx\startup_config.h</instance>
-        <component Cclass="Device" Cgroup="StartupConfig" Cvendor="NordicSemiconductor" Cversion="8.17.0" condition="Startup"/>
-        <package license="License\license.txt" name="nRF_DeviceFamilyPack" schemaVersion="1.3" url="http://developer.nordicsemi.com/nRF5_SDK/pieces/nRF_DeviceFamilyPack/" vendor="NordicSemiconductor" version="8.17.0"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="source" condition="STM32F401xC_ARMCC" name="Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f401xc.s" version="2.6.2">
-        <instance index="0">RTE\Device\STM32F401CCUx\startup_stm32f401xc.s</instance>
-        <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="2.6.3" condition="STM32F4 CMSIS"/>
-        <package name="STM32F4xx_DFP" schemaVersion="1.6.3" url="http://www.keil.com/pack/" vendor="Keil" version="2.15.0"/>
-        <targetInfos>
-          <targetInfo name="STM32F401CCU6-Blink-Bare-Metal"/>
-        </targetInfos>
-      </file>
-      <file attr="config" category="source" name="Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c" version="2.6.2">
-        <instance index="0">RTE\Device\STM32F401CCUx\system_stm32f4xx.c</instance>
-        <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="2.6.3" condition="STM32F4 CMSIS"/>
-        <package name="STM32F4xx_DFP" schemaVersion="1.6.3" url="http://www.keil.com/pack/" vendor="Keil" version="2.15.0"/>
-        <targetInfos>
-          <targetInfo name="STM32F401CCU6-Blink-Bare-Metal"/>
-        </targetInfos>
-      </file>
-    </files>
   </RTE>
 
 </Project>

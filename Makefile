@@ -1,20 +1,20 @@
-TARGET = project
+﻿TARGET = project
 BUILD_DIR = build
+SDK_DIR = CMSIS
 
-ifeq (0, 1)
-  ifeq ($(MAKECMDGOALS), debug)
-    BUILD_DIR = build-debug
-  else
-    BUILD_DIR = build-release
-  endif
-endif
+CMSIS_CORE_RAW   = https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/CMSIS/Core/Include
+CMSIS_DEVICE_RAW = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master
+SVD_ZIP_URL      = https://raw.githubusercontent.com/stm32-rs/stm32-rs/master/svd/vendor/en.stm32f4-svd.zip
+SVD_FILE         = STM32F401.svd
 
-SRC = ./src/main.c ./src/system_stm32f4xx.c
-ASM = ./src/startup_stm32f401xc.s
-LDS = STM32F401CCUX_FLASH.ld
+CC = arm-none-eabi-gcc
+AS = arm-none-eabi-gcc -x assembler-with-cpp
+CP = arm-none-eabi-objcopy
+SZ = arm-none-eabi-size
+
 MCU = -mcpu=cortex-m4 -mthumb
 DEF = -DSTM32F401xC
-INC = -I./inc -I./inc/CMSIS
+INC = -I$(SDK_DIR)
 OPT = -O3 -g0 -flto
 
 ifdef GCC_PATH
@@ -22,11 +22,6 @@ ifdef GCC_PATH
 else
   TOOLCHAIN = arm-none-eabi-
 endif
-
-CC = $(TOOLCHAIN)gcc
-AS = $(TOOLCHAIN)gcc -x assembler-with-cpp
-CP = $(TOOLCHAIN)objcopy
-SZ = $(TOOLCHAIN)size
 
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
@@ -36,57 +31,96 @@ FLAG = $(MCU) $(DEF) $(INC) -Wall -Werror -Wextra -Wpedantic -fdata-sections -ff
 JLINK_FLAGS = -openprj./stm32f401cc.jflash -open$(BUILD_DIR)/$(TARGET).hex -auto -hide -exit -jflashlog./jflash.log
 
 ifeq ($(OS), Windows_NT)
-
-    FLAG += -D WIN32
-    ifeq ($(PROCESSOR_ARCHITEW6432), AMD64)
-        FLAG += -D AMD64
-    else
-        ifeq ($(PROCESSOR_ARCHITECTURE), AMD64)
-            FLAG += -D AMD64
-        endif
-        ifeq ($(PROCESSOR_ARCHITECTURE), x86)
-            FLAG += -D IA32
-        endif
-    endif
-
-    STLINK = ST-LINK_CLI.exe
-    STLINK_FLAGS = -c UR -V -P $(BUILD_DIR)/$(TARGET).hex -HardRst -Run
-
-    JLINK = JFlash.exe
-
+  FLAG += -D WIN32
+  CURL = curl.exe
+  STLINK = ST-LINK_CLI.exe
+  STLINK_FLAGS = -c UR -V -P $(BUILD_DIR)/$(TARGET).hex -HardRst -Run
+  JLINK = JFlash.exe
 else
-
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S), Linux)
-        FLAG += -D LINUX
-    endif
-    ifeq ($(UNAME_S), Darwin)
-        FLAG += -D OSX
-    endif
-    UNAME_P := $(shell uname -p)
-    ifeq ($(UNAME_P), x86_64)
-        FLAG += -D AMD64
-    endif
-    ifneq ($(filter %86, $(UNAME_P)),)
-        FLAG += -D IA32
-    endif
-    ifneq ($(filter arm%, $(UNAME_P)),)
-        FLAG += -D ARM
-    endif
-
-    STLINK = st-flash
-    STLINK_FLAGS = --reset --format ihex write $(BUILD_DIR)/$(TARGET).hex
-
-    JLINK = JFlashExe
-
+  UNAME_S := $(shell uname -s)
+  ifeq ($(UNAME_S), Linux)
+    FLAG += -D LINUX
+  endif
+  ifeq ($(UNAME_S), Darwin)
+    FLAG += -D OSX
+  endif
+  CURL = curl
+  STLINK = st-flash
+  STLINK_FLAGS = --reset --format ihex write $(BUILD_DIR)/$(TARGET).hex
+  JLINK = JFlashExe
 endif
 
 FLAG += -MMD -MP -MF $(@:%.o=%.d)
 
+LDSCRIPT = STM32F401CCUX_FLASH.ld
 LIB = -lc -lm -lnosys
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDS) $(LIB) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIB) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
-all:: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+SRC = main.c crt0.c $(SDK_DIR)/system_stm32f4xx.c
+ASM = $(SDK_DIR)/startup_stm32f401xc.s
+
+all: deps $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+
+CMSIS_CORE_FILES = core_cm4.h cmsis_version.h cmsis_compiler.h cmsis_gcc.h mpu_armv7.h
+CMSIS_DEVICE_FILES = stm32f4xx.h stm32f401xc.h system_stm32f4xx.h system_stm32f4xx.c startup_stm32f401xc.s
+IAR_DIR            = ide/EWARM
+IAR_STARTUP        = $(IAR_DIR)/startup_stm32f401xc.s
+MDK_DIR            = ide/MDK-ARM
+MDK_STARTUP        = $(MDK_DIR)/startup_stm32f401xc.s
+
+.PHONY: deps download download_cmsis download_svd download_iar_startup download_mdk_startup
+
+download_cmsis: | $(SDK_DIR)
+	@for f in $(CMSIS_CORE_FILES); do \
+	  if [ ! -f "$(SDK_DIR)/$$f" ]; then \
+		echo "  Downloading: $$f"; \
+		$(CURL) -sSL -o "$(SDK_DIR)/$$f" "$(CMSIS_CORE_RAW)/$$f"; \
+	  fi \
+	done
+	@for f in $(CMSIS_DEVICE_FILES); do \
+	  case "$$f" in \
+	    system_stm32f4xx.c)   p="Source/Templates/$$f" ;; \
+	    startup_stm32f401xc.s) p="Source/Templates/gcc/$$f" ;; \
+	    *)                    p="Include/$$f" ;; \
+	  esac; \
+	  if [ ! -f "$(SDK_DIR)/$$f" ]; then \
+		echo "  Downloading: $$f"; \
+		$(CURL) -sSL -o "$(SDK_DIR)/$$f" "$(CMSIS_DEVICE_RAW)/$$p"; \
+	  fi \
+	done
+
+download_svd:
+	@if [ ! -f "$(SVD_FILE)" ]; then \
+	  echo "  Downloading: $(SVD_FILE)"; \
+	  $(CURL) -sSL -o "stm32f4_svd.zip" "$(SVD_ZIP_URL)"; \
+	  unzip -j -o "stm32f4_svd.zip" "*/$(SVD_FILE)" -d .; \
+	  rm -f "stm32f4_svd.zip"; \
+	fi
+
+download_iar_startup: | $(IAR_DIR)
+	@if [ ! -f "$(IAR_STARTUP)" ]; then \
+	  echo "  Downloading: $(IAR_STARTUP)"; \
+	  $(CURL) -sSL -o "$(IAR_STARTUP)" "$(CMSIS_DEVICE_RAW)/Source/Templates/iar/startup_stm32f401xc.s"; \
+	fi
+
+download_mdk_startup: | $(MDK_DIR)
+	@if [ ! -f "$(MDK_STARTUP)" ]; then \
+	  echo "  Downloading: $(MDK_STARTUP)"; \
+	  $(CURL) -sSL -o "$(MDK_STARTUP)" "$(CMSIS_DEVICE_RAW)/Source/Templates/arm/startup_stm32f401xc.s"; \
+	fi
+
+download: download_cmsis download_svd download_iar_startup download_mdk_startup
+
+deps: download_cmsis download_svd
+
+$(SDK_DIR):
+	mkdir -p $@
+
+$(IAR_DIR):
+	mkdir -p $@
+
+$(MDK_DIR):
+	mkdir -p $@
 
 OBJ = $(addprefix $(BUILD_DIR)/,$(notdir $(SRC:.c=.o)))
 vpath %.c $(sort $(dir $(SRC)))
@@ -98,7 +132,7 @@ $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	$(CC) -c $(FLAG) $(OPT) $(EXT) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
-	$(AS) -c $(FLAG) $(OPT) $(EXT) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(AS) -c $(FLAG) $(OPT) $(EXT) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Makefile
 	$(CC) $(OBJ) $(LDFLAGS) $(OPT) $(EXT) -o $@
@@ -111,27 +145,25 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(BIN) $< $@
 
 $(BUILD_DIR):
-	mkdir $@
+	mkdir -p $@
 
-debug:: OPT = -Og -g3 -gdwarf
-debug:: FLAG += -DDEBUG
-debug:: all
+debug: OPT = -Og -g3 -gdwarf
+debug: FLAG += -DDEBUG
+debug: all
 
-# Display compiler version information.
-gccversion::
+gccversion:
 	@$(CC) --version
 
-# Program the device using st-link.
-program:: $(BUILD_DIR)/$(TARGET).hex
+program: $(BUILD_DIR)/$(TARGET).hex
 	$(STLINK) $(STLINK_FLAGS)
 
-# Program the device using jlink.
-jprogram:: $(BUILD_DIR)/$(TARGET).hex
+jprogram: $(BUILD_DIR)/$(TARGET).hex
 	$(JLINK) $(JLINK_FLAGS)
 
-clean::
+clean:
 	rm -fR $(BUILD_DIR)
 
--include $(wildcard $(BUILD_DIR)/*.d)
+clean_all: clean
+	rm -fR $(SDK_DIR) && rm -f $(SVD_FILE) && rm -f $(IAR_STARTUP) $(MDK_STARTUP) ide/SES/STM32F401x_Vectors.s ide/SES/STM32F4xx_Startup.s ide/SES/thumb_crt0.s
 
-# *** EOF ***
+-include $(wildcard $(BUILD_DIR)/*.d)
