@@ -7,9 +7,11 @@
 
 ## Setup (Dependencies)
 
-Run from the project root to download CMSIS and SVD file:
+Run from the project root **before opening the project** in SES:
 
     make
+
+This downloads CMSIS headers, startup files, and SVD into `CMSIS/`.
 
 SES uses its bundled GCC with the **SES Smart Linker** (memory map + placement XML instead of a GNU linker script). This enables automatic section discovery, call‑graph‑based dead code elimination, and link‑time optimization.
 

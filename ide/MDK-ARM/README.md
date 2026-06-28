@@ -7,7 +7,7 @@
 
 ## Setup
 
-Run from the project root:
+Run from the project root **before opening the project** in μVision:
 
     make download_cmsis download_mdk_startup
 

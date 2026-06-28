@@ -66,6 +66,10 @@ Output in `build/`: `project.elf`, `project.hex`, `project.bin`.
 
 ## Build (IDE)
 
+> **Important:** All third-party dependencies (CMSIS headers, startup files, SVD) are
+> downloaded at build time via `make`. Run `make download` from the project root **before**
+> opening the project in any IDE. Without this step the IDE project will not compile.
+
 Each IDE folder has a README with setup and CLI build instructions.
 
 | IDE | Project | CLI Tool |
@@ -73,8 +77,6 @@ Each IDE folder has a README with setup and CLI build instructions.
 | SEGGER Embedded Studio | `ide/SES/Project.emProject` | `emBuild.exe` |
 | Keil MDK-ARM | `ide/MDK-ARM/Project.uvprojx` | `UV4.exe` |
 | IAR EWARM | `ide/EWARM/Project.eww` | `IarBuild.exe` |
-
-Run `make download` from the project root before opening the IDE to fetch dependencies.
 
 ## Project Structure
 

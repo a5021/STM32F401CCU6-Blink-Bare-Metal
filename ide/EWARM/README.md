@@ -7,7 +7,7 @@
 
 ## Setup
 
-Run from the project root:
+Run from the project root **before opening the project** in IAR EWARM:
 
     make download_cmsis download_iar_startup
 
