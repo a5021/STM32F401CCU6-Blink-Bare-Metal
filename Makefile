@@ -6,7 +6,6 @@ CMSIS_CORE_RAW    = https://raw.githubusercontent.com/ARM-software/CMSIS_5/maste
 CMSIS_DEVICE_RAW  = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master
 SVD_ZIP_URL       = https://raw.githubusercontent.com/stm32-rs/stm32-rs/master/svd/vendor/en.stm32f4-svd.zip
 SVD_FILE          = STM32F401.svd
-LICENSES_DIR      = LICENSES
 CMSIS_LICENSE_URL = https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/LICENSE.txt
 ST_LICENSE_URL    = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master/LICENSE.md
 
@@ -112,10 +111,10 @@ download_mdk_startup: | $(MDK_DIR)
 	  $(CURL) -sSL -o "$(MDK_STARTUP)" "$(CMSIS_DEVICE_RAW)/Source/Templates/arm/startup_stm32f401xc.s"; \
 	fi
 
-download_licenses: | $(LICENSES_DIR)
+download_licenses:
 	@for pair in \
-	  "$(CMSIS_LICENSE_URL) $(LICENSES_DIR)/CMSIS_5_LICENSE.txt" \
-	  "$(ST_LICENSE_URL)    $(LICENSES_DIR)/cmsis_device_f4_LICENSE.md"; do \
+	  "$(CMSIS_LICENSE_URL) $(SDK_DIR)/LICENSE.txt" \
+	  "$(ST_LICENSE_URL)    $(SDK_DIR)/LICENSE.md"; do \
 	  set -- $$pair; url="$$1"; file="$$2"; \
 	  if [ ! -f "$$file" ]; then \
 		echo "  Downloading: $$file"; \
@@ -126,9 +125,6 @@ download_licenses: | $(LICENSES_DIR)
 download: download_cmsis download_svd download_iar_startup download_mdk_startup download_licenses
 
 deps: download_cmsis download_svd download_licenses
-
-$(LICENSES_DIR):
-	mkdir -p $@
 
 $(SDK_DIR):
 	mkdir -p $@
@@ -181,6 +177,6 @@ clean:
 	rm -fR $(BUILD_DIR)
 
 clean_all: clean
-	rm -fR $(SDK_DIR) $(LICENSES_DIR) && rm -f $(SVD_FILE) && rm -f $(IAR_STARTUP) $(MDK_STARTUP) ide/SES/STM32F401x_Vectors.s ide/SES/STM32F4xx_Startup.s ide/SES/thumb_crt0.s
+	rm -fR $(SDK_DIR) && rm -f $(SVD_FILE) && rm -f $(IAR_STARTUP) $(MDK_STARTUP) ide/SES/STM32F401x_Vectors.s ide/SES/STM32F4xx_Startup.s ide/SES/thumb_crt0.s
 
 -include $(wildcard $(BUILD_DIR)/*.d)

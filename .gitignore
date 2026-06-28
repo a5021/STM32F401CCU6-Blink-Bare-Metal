@@ -1,7 +1,6 @@
 build/
 ide/SES/Output/
 CMSIS/
-LICENSES/
 *.svd
 jflash.log
 Makefile.bak
