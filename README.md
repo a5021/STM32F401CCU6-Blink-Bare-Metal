@@ -87,8 +87,7 @@ Each IDE folder has a README with setup and CLI build instructions.
 +-- crt0.c                        __libc_init_array stub (SES bundled GCC)
 +-- Makefile                      GCC build + download targets
 +-- STM32F401CCUX_FLASH.ld        GNU linker script
-+-- LICENSE                       MIT License
-+-- NOTICE.md                     Third-party licenses
++-- LICENSE                       MIT License + third-party notice
 +-- stm32f401cc.jflash            J-Flash project
 +-- project.jdebug                J-Link debugger project
 +-- CMSIS/                        Downloaded at build time (gitignored)
@@ -157,4 +156,4 @@ Reset -> main()
 
 ## License
 
-Source code is MIT (see `LICENSE`). Third-party components downloaded at build time are covered by their own licenses (see `NOTICE.md`).
+Source code is MIT (see `LICENSE`). Third-party components downloaded at build time are covered by their own licenses (see `LICENSE` for details).
