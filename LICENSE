@@ -24,4 +24,4 @@ SOFTWARE.
 
 Third-party components (CMSIS headers, STM32F4xx device files, SVD) are
 downloaded at build time. Their licenses are included in the download:
-CMSIS/core/LICENSE.txt (Apache 2.0), CMSIS/device/LICENSE.md (BSD-3-Clause).
+CMSIS/core/LICENSE.txt (Apache 2.0), CMSIS/device/LICENSE.md (Apache 2.0).
