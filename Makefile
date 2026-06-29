@@ -57,7 +57,7 @@ FLAG += -MMD -MP -MF $(@:%.o=%.d)
 
 LDSCRIPT = STM32F401CCUX_FLASH.ld
 LIB = -lc -lm -lnosys
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIB) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIB) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections -Wl,--no-warn-rwx-segments
 
 SRC = main.c crt0.c $(CMSIS_DEVICE_DIR)/system_stm32f4xx.c
 ASM = $(CMSIS_DEVICE_DIR)/startup_stm32f401xc.s
