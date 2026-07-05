@@ -92,5 +92,5 @@
     debug_target_connection="Simulator"
     gcc_debugging_level="None"
     gcc_omit_frame_pointer="Yes"
-    gcc_optimization_level="Level 1" />
+    gcc_optimization_level="Level 3" />
 </solution>
