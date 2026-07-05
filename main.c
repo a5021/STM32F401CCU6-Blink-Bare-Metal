@@ -15,7 +15,8 @@ int main(void) {
 
   for (;;) {
 
-    /* Wait for RTC wakeup flag; reading ISR clears it atomically   */
+    /* Wait for RTC wakeup: loop writes 0xFFFFFFFF until WUTF is set
+       by hardware, then writes 0 which clears the flag              */
     while ((RTC->ISR = UINT32_MAX * !(RTC->ISR & RTC_ISR_WUTF)));
 
     /* Capture time and date once per cycle                         */
