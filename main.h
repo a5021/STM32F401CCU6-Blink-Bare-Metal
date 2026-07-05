@@ -12,7 +12,6 @@ extern "C" {
  * "1 * ..." means the bit is enabled.
  *============================================================================*/
 
-#include <stdio.h>
 #include "stm32f4xx.h"
 
 /*---------------------------------------------------------------------------
@@ -120,9 +119,6 @@ __STATIC_INLINE void u_put_bcd(const uint8_t bcd) {
   u_putc('0' + (bcd >> 4));
   u_putc('0' + (bcd & 0x0F));
 }
-
-  /* MACRO to emulate printf() via UART */
-#define uprintf(...) for(char _b[160]; snprintf(_b, sizeof(_b), __VA_ARGS__), u_puts(_b), 0;){}
 
 __STATIC_INLINE void init_sys(void) {
 
