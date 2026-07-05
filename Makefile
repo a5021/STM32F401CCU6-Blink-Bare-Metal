@@ -10,6 +10,12 @@ SVD_FILE          = STM32F401.svd
 CMSIS_LICENSE_URL = https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/LICENSE.txt
 ST_LICENSE_URL    = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master/LICENSE.md
 
+ifdef GCC_PATH
+  TOOLCHAIN = $(GCC_PATH)/arm-none-eabi-
+else
+  TOOLCHAIN = arm-none-eabi-
+endif
+
 CC = $(TOOLCHAIN)gcc
 AS = $(TOOLCHAIN)gcc -x assembler-with-cpp
 CP = $(TOOLCHAIN)objcopy
@@ -19,12 +25,6 @@ MCU = -mcpu=cortex-m4 -mthumb
 DEF = -DSTM32F401xC
 INC = -I$(CMSIS_CORE_DIR) -I$(CMSIS_DEVICE_DIR)
 OPT = -O3 -g0 -flto
-
-ifdef GCC_PATH
-  TOOLCHAIN = $(GCC_PATH)/arm-none-eabi-
-else
-  TOOLCHAIN = arm-none-eabi-
-endif
 
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
