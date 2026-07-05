@@ -16,7 +16,7 @@ RTC-wakeup blink demo for STM32F401CCU6. On each RTC wakeup event it flashes the
 - Three fast LED flashes (30 ms each toggle) on each RTC wakeup
 - USART6 output: date and time in `DD.MM.YYYY HH:MM:SS` format at 115200 baud
 - Instruction & data cache enabled, prefetch active, 2 wait states
-- Sleep between wakeup events
+
 
 ## Hardware
 
@@ -150,8 +150,10 @@ Reset -> main()
   |
   loop:
     wait RTC wakeup flag (WUTF)
-    3 fast flashes (PC13 toggle, 30 ms each)
-    print_date() -> USART6: "DD.MM.YYYY HH:MM:SS\n"
+    capture time/date (TR/DR)
+    6 toggles of PC13 (3 full flashes, 30 ms each)
+      u_put_bcd(field) + separator per toggle
+      -> USART6: "DD.MM.YYYY HH:MM:SS\n"
 ```
 
 ## License
