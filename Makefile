@@ -10,10 +10,10 @@ SVD_FILE          = STM32F401.svd
 CMSIS_LICENSE_URL = https://raw.githubusercontent.com/ARM-software/CMSIS_5/master/LICENSE.txt
 ST_LICENSE_URL    = https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f4/master/LICENSE.md
 
-CC = arm-none-eabi-gcc
-AS = arm-none-eabi-gcc -x assembler-with-cpp
-CP = arm-none-eabi-objcopy
-SZ = arm-none-eabi-size
+CC = $(TOOLCHAIN)gcc
+AS = $(TOOLCHAIN)gcc -x assembler-with-cpp
+CP = $(TOOLCHAIN)objcopy
+SZ = $(TOOLCHAIN)size
 
 MCU = -mcpu=cortex-m4 -mthumb
 DEF = -DSTM32F401xC
