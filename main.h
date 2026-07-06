@@ -289,6 +289,8 @@ __STATIC_INLINE void init_sys(void) {
     UINT8_MAX                          /*    sync:  0x000000FF                                   */
   );
                                                                                                
+  /* RTC coarse (CALIBR) and fine (CALR) digital calibration
+     — uncomment if drift compensation is needed              */
   #if 0
     RTC->CALIBR = (                     /* 0x40002818: RTC calibration register, offset: 0x18    */
       0 * RTC_CALIBR_DCS             |  /* (1 << 7)       0x00000080                             */
